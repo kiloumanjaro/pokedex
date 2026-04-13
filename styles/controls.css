@@ -93,6 +93,8 @@
   border-top: 2px solid var(--border);
 }
 #loadMoreBtn {
+  width: fit-content;
+  margin: 0 auto;
   padding: 14px 44px;
   background: var(--red);
   color: #fff;
@@ -128,7 +130,7 @@
   }
 
   #loadMoreBtn {
-    width: 100%;
+    width: min(100%, 320px);
     justify-content: center;
   }
 }

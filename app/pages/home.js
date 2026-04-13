@@ -1,24 +1,37 @@
 // Home page: card grid rendering, search/sort controls, pagination, and load-more logic
-import { cardHTML, injectTypes, showSkeletons } from '../../components/card.js';
-import { getPokemon, fetchTotalCount, fetchPokemonBatch } from '../../lib/services/pokemonService.js';
-import cache from '../../lib/services/cache.js';
-import { getSearchQuery, setSearchQuery, getSortMode, setSortMode, filteredList } from '../../hooks/useSearch.js';
-import * as pagination from '../../hooks/usePagination.js';
-import { escapeHtml } from '../../utils/escapeHtml.js';
+import { cardHTML, injectTypes, showSkeletons } from "../../components/card.js";
+import {
+  getPokemon,
+  fetchTotalCount,
+  fetchPokemonBatch,
+} from "../../lib/services/pokemonService.js";
+import cache from "../../lib/services/cache.js";
+import {
+  getSearchQuery,
+  setSearchQuery,
+  getSortMode,
+  setSortMode,
+  filteredList,
+} from "../../hooks/useSearch.js";
+import * as pagination from "../../hooks/usePagination.js";
+import { escapeHtml } from "../../utils/escapeHtml.js";
 
 let gridEl, countEl, loadMoreWrap, loadMoreBtn;
 let onCardClick = null;
+let footerResizeObserver = null;
 
 export function setupHome(cardClickCallback) {
-  onCardClick   = cardClickCallback;
-  gridEl        = document.getElementById('cardGrid');
-  countEl       = document.getElementById('resultsCount');
-  loadMoreWrap  = document.getElementById('loadMoreWrap');
-  loadMoreBtn   = document.getElementById('loadMoreBtn');
+  onCardClick = cardClickCallback;
+  gridEl = document.getElementById("cardGrid");
+  countEl = document.getElementById("resultsCount");
+  loadMoreWrap = document.getElementById("loadMoreWrap");
+  loadMoreBtn = document.getElementById("loadMoreBtn");
+
+  setupFooterLayout();
 
   // Event delegation on card grid
-  gridEl.addEventListener('click', e => {
-    const card = e.target.closest('.poke-card');
+  gridEl.addEventListener("click", (e) => {
+    const card = e.target.closest(".poke-card");
     if (card) {
       onCardClick(parseInt(card.dataset.id, 10));
       return;
@@ -28,38 +41,38 @@ export function setupHome(cardClickCallback) {
     }
   });
 
-  gridEl.addEventListener('keydown', e => {
-    if (e.key === 'Enter') {
-      const card = e.target.closest('.poke-card');
+  gridEl.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      const card = e.target.closest(".poke-card");
       if (card) onCardClick(parseInt(card.dataset.id, 10));
     }
   });
 
-  // Load more
-  loadMoreBtn.addEventListener('click', loadMore);
+  // Load More Pokemons
+  loadMoreBtn.addEventListener("click", loadMore);
 
   // Search
-  document.getElementById('searchInput').addEventListener('input', function () {
+  document.getElementById("searchInput").addEventListener("input", function () {
     setSearchQuery(this.value.trim());
     renderGrid();
     syncLoadMoreVisibility();
   });
 
   // Sort
-  const sortIdBtn   = document.getElementById('sortId');
-  const sortNameBtn = document.getElementById('sortName');
+  const sortIdBtn = document.getElementById("sortId");
+  const sortNameBtn = document.getElementById("sortName");
 
-  sortIdBtn.addEventListener('click', () => {
-    setSortMode('id');
-    sortIdBtn.classList.add('active');
-    sortNameBtn.classList.remove('active');
+  sortIdBtn.addEventListener("click", () => {
+    setSortMode("id");
+    sortIdBtn.classList.add("active");
+    sortNameBtn.classList.remove("active");
     renderGrid();
   });
 
-  sortNameBtn.addEventListener('click', () => {
-    setSortMode('name');
-    sortNameBtn.classList.add('active');
-    sortIdBtn.classList.remove('active');
+  sortNameBtn.addEventListener("click", () => {
+    setSortMode("name");
+    sortNameBtn.classList.add("active");
+    sortIdBtn.classList.remove("active");
     renderGrid();
   });
 }
@@ -69,7 +82,9 @@ export async function init() {
   try {
     const count = await fetchTotalCount();
     pagination.setTotalCount(count);
-  } catch { /* continue */ }
+  } catch {
+    /* continue */
+  }
   await loadMore();
 }
 
@@ -87,33 +102,37 @@ export async function loadMore() {
 
     renderGrid();
 
-    items.forEach(p => {
+    items.forEach((p) => {
       if (!cache.pokemon[p.id]) {
-        getPokemon(p.id).then(() => injectTypes(p.id)).catch(() => {});
+        getPokemon(p.id)
+          .then(() => injectTypes(p.id))
+          .catch(() => {});
       } else {
         injectTypes(p.id);
       }
     });
   } catch (e) {
     console.error(e);
-    showGridError('Failed to load Pok\u00e9mon. Check your connection and try again.');
+    showGridError(
+      "Failed to load Pok\u00e9mon. Check your connection and try again.",
+    );
   } finally {
     pagination.setLoading(false);
     loadMoreBtn.disabled = false;
-    loadMoreBtn.textContent = 'Load More';
+    loadMoreBtn.textContent = "Load More Pokemons";
     syncLoadMoreVisibility();
   }
 }
 
 function renderGrid() {
-  const list  = filteredList(cache.list);
+  const list = filteredList(cache.list);
   const query = getSearchQuery();
   const total = pagination.getTotalCount();
 
   if (query) {
-    countEl.textContent = `${list.length} result${list.length !== 1 ? 's' : ''} found`;
+    countEl.textContent = `${list.length} result${list.length !== 1 ? "s" : ""} found`;
   } else {
-    countEl.textContent = `Showing ${cache.list.length}${total ? ' of ' + total : ''} Pok\u00e9mon`;
+    countEl.textContent = `Showing ${cache.list.length}${total ? " of " + total : ""} Pok\u00e9mon`;
   }
 
   if (list.length === 0) {
@@ -126,8 +145,10 @@ function renderGrid() {
     return;
   }
 
-  gridEl.innerHTML = list.map((p, i) => cardHTML(p, i)).join('');
-  list.forEach(p => { if (cache.pokemon[p.id]) injectTypes(p.id); });
+  gridEl.innerHTML = list.map((p, i) => cardHTML(p, i)).join("");
+  list.forEach((p) => {
+    if (cache.pokemon[p.id]) injectTypes(p.id);
+  });
 }
 
 function showGridError(msg) {
@@ -142,5 +163,33 @@ function showGridError(msg) {
 }
 
 function syncLoadMoreVisibility() {
-  loadMoreWrap.style.display = (getSearchQuery() || pagination.getAllLoaded()) ? 'none' : 'block';
+  loadMoreWrap.style.display =
+    getSearchQuery() || pagination.getAllLoaded() ? "none" : "flex";
+  syncFooterHeight();
+}
+
+function setupFooterLayout() {
+  syncFooterHeight();
+
+  if (footerResizeObserver) footerResizeObserver.disconnect();
+  window.removeEventListener("resize", syncFooterHeight);
+
+  if ("ResizeObserver" in window) {
+    footerResizeObserver = new ResizeObserver(() => syncFooterHeight());
+    footerResizeObserver.observe(loadMoreWrap);
+  }
+
+  window.addEventListener("resize", syncFooterHeight);
+}
+
+function syncFooterHeight() {
+  const footerHeight =
+    loadMoreWrap && getComputedStyle(loadMoreWrap).display !== "none"
+      ? `${loadMoreWrap.offsetHeight}px`
+      : "0px";
+
+  document.documentElement.style.setProperty(
+    "--home-footer-height",
+    footerHeight,
+  );
 }

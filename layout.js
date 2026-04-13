@@ -26,7 +26,7 @@ export function render() {
         <div class="card-grid" id="cardGrid"></div>
       </div>
       <footer id="loadMoreWrap" class="home-footer">
-        <button id="loadMoreBtn">Load More</button>
+        <button id="loadMoreBtn">Load More Pokemons</button>
       </footer>
     </main>
 

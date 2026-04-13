@@ -39,7 +39,7 @@ export async function loadDetail(id, contentEl, handlers = {}) {
   try {
     const detailState = await fetchDetailState(id);
     if (requestId !== activeDetailRequest) return;
-    contentEl.innerHTML = renderPokedex(detailState);
+    contentEl.innerHTML = renderPokedex(detailState, { hideUntilReady: !hasNotebook });
 
     hydratePokedex(contentEl, handlers);
     contentEl.dataset.detailLoading = 'false';

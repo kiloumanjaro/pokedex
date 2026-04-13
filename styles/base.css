@@ -15,6 +15,8 @@
   --radius-sm: 0px;
   --shadow:    4px 4px 0px 0px #121212;
   --shadow-lg: 8px 8px 0px 0px #121212;
+  --header-height: 64px;
+  --home-footer-height: 0px;
 }
 
 body {
@@ -29,7 +31,7 @@ body {
 .container {
   max-width: 1280px;
   margin: 0 auto;
-  min-height: calc(100vh - 64px);
+  min-height: calc(100dvh - var(--header-height) + var(--home-footer-height));
   display: flex;
   flex-direction: column;
 }

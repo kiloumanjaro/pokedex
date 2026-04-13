@@ -11,6 +11,7 @@ const BOOK_HEIGHT = 650;
 const PAGE_WIDTH = 472;
 const PAGE_GAP = 8;
 const BOOK_PADDING = 8;
+const PAGE_FLIP_BLEED = 48;
 const PAGE_FLIP_DURATION = 600;
 const PAGE_FLIP_CLEANUP_DELAY = 610;
 let activeFit = null;
@@ -268,13 +269,16 @@ function chevronIcon(direction) {
     </svg>`;
 }
 
-export function renderPokedex({
-  id,
-  totalCount = 0,
-  pokemon,
-  species,
-  weaknesses = [],
-}) {
+export function renderPokedex(
+  {
+    id,
+    totalCount = 0,
+    pokemon,
+    species,
+    weaknesses = [],
+  },
+  { hideUntilReady = false } = {}
+) {
   const types = pokemon.types.map(entry => entry.type.name);
   const mainColor = TYPE_BG[types[0]] ?? '#8b5e34';
   const genus = getEnglishGenus(species);
@@ -297,7 +301,7 @@ export function renderPokedex({
   ];
 
   return `
-    <div data-book-stage class="mx-auto flex h-[min(82vh,700px)] w-full items-center justify-center overflow-hidden px-1 py-1 text-slate-900">
+    <div data-book-stage class="mx-auto flex h-[min(82vh,700px)] w-full items-center justify-center overflow-visible px-1 py-1 text-slate-900">
       <button
         type="button"
         data-book-action="previous"
@@ -309,26 +313,21 @@ export function renderPokedex({
         ${chevronIcon('left')}
       </button>
 
-      <div data-book-shell class="relative origin-center" style="width:${BOOK_WIDTH}px;height:${BOOK_HEIGHT}px">
+      <div
+        data-book-shell
+        class="relative origin-center"
+        style="width:${BOOK_WIDTH}px;height:${BOOK_HEIGHT}px;opacity:${hideUntilReady ? '0' : '1'};transition:opacity .15s ease-out"
+      >
         <div
           data-book-root
-          class="relative h-full overflow-hidden rounded-[30px] border border-amber-950/20 bg-[linear-gradient(135deg,#cb9550_0%,#b77a37_45%,#9a622c_100%)] shadow-[0_32px_90px_rgba(15,23,42,0.34)]"
+          class="relative h-full overflow-visible rounded-[30px] border border-amber-950/20 bg-[linear-gradient(135deg,#cb9550_0%,#b77a37_45%,#9a622c_100%)] shadow-[0_32px_90px_rgba(15,23,42,0.34)]"
           style="padding:${BOOK_PADDING}px"
         >
           <div class="pointer-events-none absolute inset-y-3 left-1/2 hidden w-4 -translate-x-1/2 rounded-full bg-[linear-gradient(180deg,rgba(97,57,23,0.98),rgba(61,35,16,0.98),rgba(97,57,23,0.98))] lg:block"></div>
           <div class="pointer-events-none absolute inset-x-16 top-0 h-24 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.2),transparent_70%)]"></div>
           <div class="absolute left-8 top-0 h-16 w-12 rounded-b-[18px] shadow-sm" style="background:${mainColor}"></div>
 
-          <button
-            type="button"
-            data-book-action="close"
-            class="absolute right-5 top-5 z-20 inline-flex h-11 w-11 items-center justify-center rounded-full border border-black/10 bg-white/85 text-slate-700 shadow-lg transition hover:-translate-y-0.5 hover:bg-white"
-            aria-label="Close notebook"
-          >
-            ${closeIcon()}
-          </button>
-
-          <div data-book-spread class="grid h-full grid-cols-2 [perspective:1800px]" style="gap:${PAGE_GAP}px">
+          <div data-book-spread class="relative grid h-full grid-cols-2 overflow-visible [perspective:1800px]" style="gap:${PAGE_GAP}px">
             <section data-book-page="left" class="relative h-full overflow-hidden rounded-[24px] border border-amber-950/10 bg-[#f8f0db] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.75)] [backface-visibility:hidden] [transform-origin:right_center]">
               <div class="pointer-events-none absolute inset-0 opacity-40 [background-image:linear-gradient(to_bottom,transparent_33px,rgba(148,163,184,0.14)_34px)] [background-size:100%_34px]"></div>
               <div class="relative flex h-full flex-col gap-3">
@@ -424,8 +423,20 @@ export function renderPokedex({
               <div class="relative flex h-full flex-col gap-3">
                 <div class="flex items-start justify-between gap-4">
                   <div>
-                    <p class="text-[11px] uppercase tracking-[0.32em] text-slate-500">Battle Ledger</p>
-                    <h3 class="mt-1 font-book text-[40px] text-slate-900">Combat Notes</h3>
+                    <div class="flex items-start gap-3">
+                      <div>
+                        <p class="text-[11px] uppercase tracking-[0.32em] text-slate-500">Battle Ledger</p>
+                        <h3 class="mt-1 font-book text-[40px] text-slate-900">Combat Notes</h3>
+                      </div>
+                      <button
+                        type="button"
+                        data-book-action="close"
+                        class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-amber-900/15 bg-[#fffaf0] text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:bg-white"
+                        aria-label="Close notebook"
+                      >
+                        ${closeIcon()}
+                      </button>
+                    </div>
                   </div>
                   <div class="rounded-[20px] border border-white/70 bg-white/80 px-4 py-3 text-right shadow-sm">
                     <p class="text-[11px] font-semibold uppercase tracking-[0.28em] text-slate-500">Stat Total</p>
@@ -691,10 +702,50 @@ function fitNotebook(root) {
   const navWidth = Array.from(root.querySelectorAll('[data-book-nav="true"]'))
     .reduce((total, button) => total + button.offsetWidth, 0);
   const sideGap = root.querySelectorAll('[data-book-nav="true"]').length ? 32 : 0;
-  const availableWidth = Math.max(120, stage.clientWidth - navWidth - sideGap - 4);
+  const availableWidth = Math.max(
+    120,
+    stage.clientWidth - navWidth - sideGap - 4 - PAGE_FLIP_BLEED * 2
+  );
+  const availableHeight = Math.max(120, stage.clientHeight - 4 - PAGE_FLIP_BLEED * 2);
   const widthScale = Math.max(0.1, availableWidth / BOOK_WIDTH);
-  const heightScale = Math.max(0.1, (stage.clientHeight - 4) / BOOK_HEIGHT);
+  const heightScale = Math.max(0.1, availableHeight / BOOK_HEIGHT);
   shell.style.transform = `scale(${Math.min(widthScale, heightScale, 1)})`;
+}
+
+function revealNotebook(root) {
+  const shell = root.querySelector('[data-book-shell]');
+  if (!shell) return;
+  shell.style.opacity = '1';
+}
+
+function scheduleNotebookFit(root) {
+  const image = root.querySelector('[data-book-image]');
+  const runFit = () => fitNotebook(root);
+  const settleFit = () => {
+    runFit();
+    revealNotebook(root);
+  };
+
+  runFit();
+
+  requestAnimationFrame(() => {
+    runFit();
+
+    requestAnimationFrame(() => {
+      if (document.fonts?.ready) {
+        document.fonts.ready.then(() => {
+          settleFit();
+        });
+        return;
+      }
+
+      settleFit();
+    });
+  });
+
+  if (image && !image.complete) {
+    image.addEventListener('load', runFit, { once: true });
+  }
 }
 
 function getPageTurnRotationKeyframes(action) {
@@ -895,7 +946,7 @@ export function hydratePokedex(root, handlers = {}) {
   }
 
   activeFit = () => fitNotebook(root);
-  activeFit();
+  scheduleNotebookFit(root);
 
   if (root.dataset.bookSessionOpen === 'true') {
     setCoverState(root, 'open');
