@@ -1,40 +1,54 @@
-import { imageUrl } from '../config/app.config.js';
-import { STAT_COLORS, STAT_LABELS } from '../constants/statMeta.js';
-import { TYPE_BG } from '../constants/typeColors.js';
-import { capitalize } from '../utils/capitalize.js';
-import { escapeHtml } from '../utils/escapeHtml.js';
-import { FALLBACK_IMAGE } from '../utils/fallbackImage.js';
-import { formatId } from '../utils/formatId.js';
+import { imageUrl } from "../config/app.config.js";
+import { STAT_COLORS, STAT_LABELS } from "../constants/statMeta.js";
+import { TYPE_BG } from "../constants/typeColors.js";
+import { capitalize } from "../utils/capitalize.js";
+import { escapeHtml } from "../utils/escapeHtml.js";
+import { FALLBACK_IMAGE } from "../utils/fallbackImage.js";
+import { formatId } from "../utils/formatId.js";
 
-const BOOK_WIDTH = 968;
-const BOOK_HEIGHT = 650;
-const PAGE_WIDTH = 472;
+const BOOK_WIDTH = 1260;
+const BOOK_HEIGHT = 820;
 const PAGE_GAP = 8;
 const BOOK_PADDING = 8;
+const BOOK_BORDER_WIDTH = 2;
+const PAGE_WIDTH =
+  (BOOK_WIDTH - BOOK_PADDING * 2 - BOOK_BORDER_WIDTH * 2 - PAGE_GAP) / 2;
 const PAGE_FLIP_BLEED = 48;
 const PAGE_FLIP_DURATION = 600;
 const PAGE_FLIP_CLEANUP_DELAY = 610;
-const BOOK_COVER_COLOR = '#AA6F32';
-const BOOK_SPRING_COLOR = '#B0B0B0';
+const BOOK_COVER_COLOR = "#f0c020";
+const BOOK_SPRING_COLOR = "#B0B0B0";
 const COVER_SPRING_CONNECTOR_WIDTH = PAGE_GAP + 10;
+const LIGHT_TYPE_TEXT = new Set([
+  "electric",
+  "ice",
+  "rock",
+  "flying",
+  "steel",
+  "fairy",
+]);
+const PAGE_TURN_SHIFT = 4;
 let activeFit = null;
 let resizeBound = false;
 
 function renderPageRings(side) {
-  const sideClass = side === 'left' ? '-left-1 items-start' : '-right-1 items-end';
-  const circleClass = side === 'left' ? 'left-3' : 'right-3';
-  const barClass = side === 'left'
-    ? 'left-0 rounded-r'
-    : 'right-0 rounded-l';
+  const sideClass =
+    side === "left" ? "-left-1 items-start" : "-right-1 items-end";
+  const circleClass = side === "left" ? "left-3" : "right-3";
+  const barClass = side === "left" ? "left-0 rounded-r" : "right-0 rounded-l";
 
   return `
     <div data-ring-group="${side}" class="pointer-events-none absolute ${sideClass} top-0 flex h-full flex-col justify-around py-4">
-      ${[0, 1, 2].map(i => `
+      ${[0, 1, 2]
+        .map(
+          (i) => `
         <div data-ring="${i}" class="relative flex h-4 w-8 items-center">
           <div class="absolute ${circleClass} h-3.5 w-3.5 rounded-full bg-[#121212]"></div>
           <div class="absolute ${barClass} z-10 h-1.5 w-5" style="background:${BOOK_SPRING_COLOR}"></div>
         </div>
-      `).join('')}
+      `,
+        )
+        .join("")}
     </div>`;
 }
 
@@ -46,7 +60,9 @@ function renderCoverSpringConnectors() {
       style="width:${COVER_SPRING_CONNECTOR_WIDTH}px"
       aria-hidden="true"
     >
-      ${[0, 1, 2].map(i => `
+      ${[0, 1, 2]
+        .map(
+          (i) => `
         <div class="flex h-4 items-center justify-center">
           <div
             data-cover-spring="${i}"
@@ -54,12 +70,17 @@ function renderCoverSpringConnectors() {
             style="width:${COVER_SPRING_CONNECTOR_WIDTH}px;background:${BOOK_SPRING_COLOR}"
           ></div>
         </div>
-      `).join('')}
+      `,
+        )
+        .join("")}
     </div>`;
 }
 
-function cleanText(value = '') {
-  return value.replace(/[\f\n\r]+/g, ' ').replace(/\s+/g, ' ').trim();
+function cleanText(value = "") {
+  return value
+    .replace(/[\f\n\r]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 function shortenText(value, maxLength) {
@@ -68,41 +89,41 @@ function shortenText(value, maxLength) {
 }
 
 function getEnglishGenus(species) {
-  const genus = species?.genera?.find(entry => entry.language.name === 'en');
-  return genus ? genus.genus : 'Pokemon';
+  const genus = species?.genera?.find((entry) => entry.language.name === "en");
+  return genus ? genus.genus : "Pokemon";
 }
 
 function getEnglishFlavor(species) {
   const entry = species?.flavor_text_entries?.find(
-    item => item.language.name === 'en'
+    (item) => item.language.name === "en",
   );
 
   return entry
     ? cleanText(entry.flavor_text)
-    : 'A page is waiting to be filled with more field notes.';
+    : "A page is waiting to be filled with more field notes.";
 }
 
 function getGenerationLabel(species) {
   const raw = species?.generation?.name;
-  if (!raw) return 'Unknown';
-  return `Gen ${raw.replace('generation-', '').toUpperCase()}`;
+  if (!raw) return "Unknown";
+  return `Gen ${raw.replace("generation-", "").toUpperCase()}`;
 }
 
 function getHabitatLabel(species) {
-  return species?.habitat ? capitalize(species.habitat.name) : 'Unknown';
+  return species?.habitat ? capitalize(species.habitat.name) : "Unknown";
 }
 
 function getShapeLabel(species) {
-  return species?.shape ? capitalize(species.shape.name) : 'Unknown';
+  return species?.shape ? capitalize(species.shape.name) : "Unknown";
 }
 
 function formatHeight(height) {
-  if (typeof height !== 'number') return 'Unknown';
+  if (typeof height !== "number") return "Unknown";
   return `${(height / 10).toFixed(1)} m`;
 }
 
 function formatWeight(weight) {
-  if (typeof weight !== 'number') return 'Unknown';
+  if (typeof weight !== "number") return "Unknown";
   return `${(weight / 10).toFixed(1)} kg`;
 }
 
@@ -110,55 +131,62 @@ function getStatTotal(stats = []) {
   return stats.reduce((total, stat) => total + (stat.base_stat ?? 0), 0);
 }
 
+function getTypeTextColor(type) {
+  return LIGHT_TYPE_TEXT.has(type) ? "#121212" : "#FFFFFF";
+}
+
 function renderTypePills(types) {
   return types
-    .map(type => {
-      const color = TYPE_BG[type] ?? '#64748b';
+    .map((type) => {
+      const color = TYPE_BG[type] ?? "#64748b";
+      const textColor = getTypeTextColor(type);
       return `
         <span
-          class="inline-flex items-center rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-[0.22em] text-white shadow-sm"
-          style="background:${color}"
+          class="inline-flex items-center border-2 border-[var(--border)] px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.18em]"
+          style="background:${color};color:${textColor}"
         >
           ${escapeHtml(capitalize(type))}
         </span>`;
     })
-    .join('');
+    .join("");
 }
 
 function renderFactCard(label, value, accent) {
   return `
-    <div class="rounded-[18px] border border-white/70 bg-white/75 p-4 shadow-[0_10px_20px_rgba(15,23,42,0.06)]">
-      <p class="text-[11px] font-semibold uppercase tracking-[0.3em] text-slate-500">
+    <div class="border-2 border-[var(--border)] bg-[var(--card)] px-3 py-2">
+      <p class="text-[10px] font-black uppercase tracking-[0.22em] text-slate-600">
         ${escapeHtml(label)}
       </p>
-      <p class="mt-2 text-lg font-semibold text-slate-900">
+      <p class="mt-1 text-[17px] font-black leading-tight text-[var(--text)]" style="color:${accent}">
         ${escapeHtml(value)}
       </p>
-      <div class="mt-3 h-1.5 w-14 rounded-full" style="background:${accent}"></div>
     </div>`;
 }
 
 function renderStatRows(stats = []) {
   return stats
-    .map(stat => {
-      const pct = Math.min(100, Math.round(((stat.base_stat ?? 0) / 255) * 100));
+    .map((stat) => {
+      const pct = Math.min(
+        100,
+        Math.round(((stat.base_stat ?? 0) / 255) * 100),
+      );
       const label = STAT_LABELS[stat.stat.name] ?? capitalize(stat.stat.name);
-      const color = STAT_COLORS[stat.stat.name] ?? '#64748b';
+      const color = STAT_COLORS[stat.stat.name] ?? "#64748b";
 
       return `
-        <div class="grid grid-cols-[84px_34px_minmax(0,1fr)] items-center gap-2">
-          <div class="text-[12px] font-semibold uppercase tracking-[0.18em] text-slate-500">${escapeHtml(label)}</div>
-          <div class="text-sm font-black text-slate-900">${stat.base_stat ?? 0}</div>
-          <div class="h-2.5 overflow-hidden rounded-full bg-slate-200">
+        <div class="grid grid-cols-[84px_32px_minmax(0,1fr)] items-center gap-2">
+          <div class="text-[11px] font-black uppercase tracking-[0.14em] text-slate-600">${escapeHtml(label)}</div>
+          <div class="text-[13px] font-black text-[var(--text)]">${stat.base_stat ?? 0}</div>
+          <div class="h-2.5 overflow-hidden border-2 border-[var(--border)] bg-[#E0E0E0]">
             <div
-              class="h-full rounded-full transition-[width] duration-700 ease-out"
+              class="h-full transition-[width] duration-700 ease-out"
               data-stat-pct="${pct}"
               style="width:0;background:${color}"
             ></div>
           </div>
         </div>`;
     })
-    .join('');
+    .join("");
 }
 
 function renderAbilities(abilities = []) {
@@ -168,22 +196,26 @@ function renderAbilities(abilities = []) {
   return `
     <div class="flex flex-wrap gap-2">
       ${picks
-        .map(entry => {
+        .map((entry) => {
           const base = capitalize(entry.ability.name);
           const label = entry.is_hidden ? `${base} (Hidden)` : base;
+          const background = entry.is_hidden ? "var(--yellow)" : "var(--card)";
 
           return `
-            <span class="inline-flex items-center rounded-full border border-amber-900/10 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm">
+            <span
+              class="inline-flex items-center border-2 border-[var(--border)] px-3 py-2 text-[11px] font-black uppercase tracking-[0.12em] text-[var(--text)]"
+              style="background:${background}"
+            >
               ${escapeHtml(label)}
             </span>`;
         })
-        .join('')}
+        .join("")}
       ${
         extraCount
-          ? `<span class="inline-flex items-center rounded-full border border-slate-200 bg-slate-100 px-3 py-2 text-sm font-semibold text-slate-500 shadow-sm">
+          ? `<span class="inline-flex items-center border-2 border-[var(--border)] bg-[#E0E0E0] px-3 py-2 text-[11px] font-black uppercase tracking-[0.12em] text-slate-700">
               +${extraCount} more
             </span>`
-          : ''
+          : ""
       }
     </div>`;
 }
@@ -191,23 +223,24 @@ function renderAbilities(abilities = []) {
 function renderWeaknesses(weaknesses = []) {
   if (!weaknesses.length) {
     return `
-      <span class="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-700">
-        No major weakness data
+      <span class="inline-flex items-center border-2 border-[var(--border)] bg-[var(--card)] px-3 py-2 text-[11px] font-black uppercase tracking-[0.12em] text-[var(--text)]">
+        No weakness data
       </span>`;
   }
 
   return weaknesses
-    .map(type => {
-      const color = TYPE_BG[type] ?? '#64748b';
+    .map((type) => {
+      const color = TYPE_BG[type] ?? "#64748b";
+      const textColor = getTypeTextColor(type);
       return `
         <span
-          class="inline-flex items-center rounded-full px-3 py-2 text-sm font-bold uppercase tracking-[0.18em] text-white shadow-sm"
-          style="background:${color}"
+          class="inline-flex items-center border-2 border-[var(--border)] px-3 py-2 text-[11px] font-black uppercase tracking-[0.12em]"
+          style="background:${color};color:${textColor}"
         >
           ${escapeHtml(capitalize(type))}
         </span>`;
     })
-    .join('');
+    .join("");
 }
 
 function renderMoves(moves = []) {
@@ -215,45 +248,45 @@ function renderMoves(moves = []) {
   const extraCount = Math.max(0, moves.length - picks.length);
 
   if (!picks.length) {
-    return '<p class="text-sm text-slate-500">No move data available yet.</p>';
+    return '<p class="text-[12px] font-semibold uppercase tracking-[0.12em] text-slate-600">No move data available yet.</p>';
   }
 
   return `
     <div class="grid grid-cols-2 gap-2">
       ${picks
-        .map(move => {
+        .map((move) => {
           return `
-            <div class="rounded-2xl border border-white/70 bg-white/80 px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-700 shadow-sm">
+            <div class="border-2 border-[var(--border)] bg-[var(--card)] px-3 py-2.5 text-[11px] font-black uppercase tracking-[0.14em] text-[var(--text)]">
               ${escapeHtml(capitalize(move.move.name))}
             </div>`;
         })
-        .join('')}
+        .join("")}
       ${
         extraCount
-          ? `<div class="col-span-2 rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-3 py-2 text-center text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-              +${extraCount} more moves in the archive
+          ? `<div class="col-span-2 border-2 border-[var(--border)] bg-[#E0E0E0] px-3 py-2.5 text-center text-[11px] font-black uppercase tracking-[0.14em] text-slate-700">
+              +${extraCount} more moves in the Pokedex
             </div>`
-          : ''
+          : ""
       }
     </div>`;
 }
 
 function renderNotesList(notes) {
   return `
-    <div class="grid grid-cols-2 gap-2">
+    <div class="grid grid-cols-3 gap-2">
       ${notes
         .map(
-          note => `
-            <div class="rounded-2xl border border-white/70 bg-white/75 px-3 py-2 shadow-sm">
-              <span class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">
+          (note) => `
+            <div class="border-2 border-[var(--border)] bg-[var(--card)] px-2.5 py-2">
+              <span class="text-[10px] font-black uppercase tracking-[0.16em] text-slate-600">
                 ${escapeHtml(note.label)}
               </span>
-              <div class="mt-1 text-sm font-semibold text-slate-900">
+              <div class="mt-1 text-[12px] font-black leading-snug text-[var(--text)]">
                 ${escapeHtml(note.value)}
               </div>
-            </div>`
+            </div>`,
         )
-        .join('')}
+        .join("")}
     </div>`;
 }
 
@@ -265,7 +298,7 @@ function closeIcon() {
 }
 
 function chevronIcon(direction) {
-  const path = direction === 'left' ? 'm15 18-6-6 6-6' : 'm9 18 6-6-6-6';
+  const path = direction === "left" ? "m15 18-6-6 6-6" : "m9 18 6-6-6-6";
   return `
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="h-6 w-6">
       <path d="${path}"></path>
@@ -273,230 +306,200 @@ function chevronIcon(direction) {
 }
 
 export function renderPokedex(
-  {
-    id,
-    totalCount = 0,
-    pokemon,
-    species,
-    weaknesses = [],
-  },
-  { hideUntilReady = false } = {}
+  { id, totalCount = 0, pokemon, species, weaknesses = [] },
+  { hideUntilReady = false } = {},
 ) {
-  const types = pokemon.types.map(entry => entry.type.name);
-  const mainColor = TYPE_BG[types[0]] ?? '#8b5e34';
+  const types = pokemon.types.map((entry) => entry.type.name);
+  const mainColor = TYPE_BG[types[0]] ?? "#8b5e34";
   const genus = getEnglishGenus(species);
-  const flavor = shortenText(getEnglishFlavor(species), 210);
+  const flavor = shortenText(getEnglishFlavor(species), 160);
   const generation = getGenerationLabel(species);
   const habitat = getHabitatLabel(species);
   const shape = getShapeLabel(species);
   const statTotal = getStatTotal(pokemon.stats);
-  const prevId = totalCount ? (id > 1 ? id - 1 : totalCount) : Math.max(1, id - 1);
+  const prevId = totalCount
+    ? id > 1
+      ? id - 1
+      : totalCount
+    : Math.max(1, id - 1);
   const nextId = totalCount ? (id < totalCount ? id + 1 : 1) : id + 1;
-  const progress = totalCount ? Math.max(1, Math.round((id / totalCount) * 100)) : 0;
+  const progress = totalCount
+    ? Math.max(1, Math.round((id / totalCount) * 100))
+    : 0;
   const canNavigate = totalCount > 1;
   const notebookNotes = [
-    { label: 'Height', value: formatHeight(pokemon.height) },
-    { label: 'Weight', value: formatWeight(pokemon.weight) },
-    { label: 'Base EXP', value: String(pokemon.base_experience ?? 'Unknown') },
-    { label: 'Generation', value: generation },
-    { label: 'Shape', value: shape },
-    { label: 'Habitat', value: habitat },
+    { label: "Height", value: formatHeight(pokemon.height) },
+    { label: "Weight", value: formatWeight(pokemon.weight) },
+    { label: "Base EXP", value: String(pokemon.base_experience ?? "Unknown") },
+    { label: "Generation", value: generation },
+    { label: "Shape", value: shape },
+    { label: "Habitat", value: habitat },
   ];
 
   return `
-    <div data-book-stage class="mx-auto flex h-[min(82vh,700px)] w-full items-center justify-center overflow-visible px-1 py-1 text-slate-900">
+    <div data-book-stage class="mx-auto flex h-[min(92vh,860px)] w-full items-center justify-center overflow-visible px-1 py-1 text-slate-900">
       <button
         type="button"
         data-book-action="previous"
         data-book-nav="true"
-        ${canNavigate ? '' : 'disabled'}
-        class="mr-3 inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full border-2 border-[var(--border)] bg-white text-slate-900 shadow-[3px_3px_0px_0px_#2d2d2d] transition duration-150 hover:shadow-[4px_4px_0px_0px_#2d2d2d] disabled:cursor-not-allowed disabled:opacity-30"
+        ${canNavigate ? "" : "disabled"}
+        class="mr-3 inline-flex h-12 w-12 shrink-0 items-center justify-center border-2 border-[var(--border)] bg-[var(--card)] text-[var(--text)] transition duration-150 hover:bg-[var(--yellow)] active:translate-x-[2px] active:translate-y-[2px] disabled:cursor-not-allowed disabled:opacity-30"
         aria-label="Previous Pokemon"
       >
-        ${chevronIcon('left')}
+        ${chevronIcon("left")}
       </button>
 
       <div
         data-book-shell
         class="relative origin-center"
-        style="width:${BOOK_WIDTH}px;height:${BOOK_HEIGHT}px;opacity:${hideUntilReady ? '0' : '1'};transition:opacity .15s ease-out"
+        style="width:${BOOK_WIDTH}px;height:${BOOK_HEIGHT}px;opacity:${hideUntilReady ? "0" : "1"};transition:opacity .15s ease-out"
       >
         <div
           data-book-root
-          class="relative h-full overflow-visible rounded-[30px] shadow-[0_32px_90px_rgba(15,23,42,0.34)]"
+          class="relative h-full overflow-visible rounded-[18px] border-2 border-[var(--border)]"
           style="padding:${BOOK_PADDING}px;background:${BOOK_COVER_COLOR}"
         >
           <div data-book-spread class="relative grid h-full grid-cols-2 overflow-visible [perspective:1800px]" style="gap:${PAGE_GAP}px">
-            <section data-book-page="left" class="relative h-full overflow-hidden rounded-[24px] border border-amber-950/10 bg-[#f8f0db] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.75)] [backface-visibility:hidden] [transform-origin:right_center]">
-              <div class="pointer-events-none absolute inset-0 opacity-40 [background-image:linear-gradient(to_bottom,transparent_33px,rgba(148,163,184,0.14)_34px)] [background-size:100%_34px]"></div>
+            <section data-book-page="left" class="relative h-full overflow-hidden rounded-[10px] bg-[var(--bg)] px-6 py-6 pr-12 [backface-visibility:hidden] [transform-origin:right_center]">
+              <div class="pointer-events-none absolute inset-0 opacity-35 [background-image:radial-gradient(rgba(18,18,18,0.08)_0.8px,transparent_0.8px)] [background-size:18px_18px]"></div>
               <div class="relative flex h-full flex-col gap-3">
-                <div class="flex items-start justify-between gap-3">
-                  <div>
-                    <p class="font-book text-[34px] font-semibold tracking-[0.08em] text-amber-900/90">Field Journal</p>
-                    <p class="mt-0.5 text-[11px] uppercase tracking-[0.32em] text-slate-500">Pokemon Archive</p>
+                <div class="flex items-start justify-between gap-3 pb-3">
+                  <div class="min-w-0">
+                    <h2 class="text-[38px] font-black uppercase leading-none tracking-[-0.05em] text-[var(--text)]">
+                      ${escapeHtml(capitalize(pokemon.name))}
+                    </h2>
+                    <p class="mt-2 text-[14px] font-semibold uppercase tracking-[0.16em] text-slate-600">${escapeHtml(genus)}</p>
                   </div>
-                  <div class="rounded-full border border-black/10 bg-white/80 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.28em] text-slate-600 shadow-sm">
-                    ${escapeHtml(formatId(id))}
+                  <div class="shrink-0 border-2 border-[var(--border)] bg-[var(--yellow)] px-3 py-2 text-right">
+                    <p class="text-[10px] font-black uppercase tracking-[0.22em] text-slate-700">Pokedex ID</p>
+                    <p class="mt-1 text-[22px] font-black leading-none text-[var(--text)]">${escapeHtml(formatId(id))}</p>
                   </div>
                 </div>
 
-                <div class="rounded-[22px] border border-amber-900/10 bg-white/70 p-4 shadow-[0_10px_24px_rgba(15,23,42,0.08)]">
-                  <div class="flex h-[260px] gap-4">
+                <div class="grid grid-cols-[198px_minmax(0,1fr)] gap-3">
+                  <div class="border-2 border-[var(--border)] bg-[var(--card)]">
+                    <div class="flex items-center justify-between border-b-2 border-[var(--border)] px-3 py-2">
+                      <p class="text-[11px] font-black uppercase tracking-[0.18em] text-slate-600">Specimen</p>
+                      <p class="text-[11px] font-black uppercase tracking-[0.16em]" style="color:${mainColor}">
+                        ${types.length} Type${types.length > 1 ? "s" : ""}
+                      </p>
+                    </div>
                     <div
-                      class="relative flex w-[280px] shrink-0 items-center justify-center overflow-hidden rounded-[28px] border border-white/70 shadow-inner"
-                      style="background:
-                        radial-gradient(circle at top, ${mainColor}33, transparent 55%),
-                        linear-gradient(135deg, rgba(255,255,255,0.94), rgba(241,245,249,0.88));"
+                      class="relative flex h-[222px] items-center justify-center overflow-hidden p-4"
+                      style="background:linear-gradient(180deg,${mainColor}2E 0%, rgba(253,251,247,0) 100%), var(--bg)"
                     >
-                      <div class="absolute inset-0 opacity-50 [background-image:radial-gradient(circle,rgba(255,255,255,0.9)_0.8px,transparent_0.8px)] [background-size:18px_18px]"></div>
+                      <div class="absolute inset-0 opacity-35 [background-image:radial-gradient(rgba(18,18,18,0.08)_0.8px,transparent_0.8px)] [background-size:18px_18px]"></div>
                       <img
                         data-book-image
                         src="${imageUrl(id)}"
                         alt="${escapeHtml(pokemon.name)}"
-                        class="relative z-10 h-44 w-44 object-contain drop-shadow-[0_18px_20px_rgba(15,23,42,0.24)]"
+                        class="relative z-10 h-40 w-40 object-contain"
                       />
                     </div>
+                  </div>
 
-                    <div class="flex min-w-0 flex-1 flex-col justify-between">
-                      <div>
-                        <div class="flex flex-wrap items-end gap-3">
-                          <h2 class="font-book text-[52px] leading-none text-slate-900">
-                            ${escapeHtml(capitalize(pokemon.name))}
-                          </h2>
-                          <span
-                            class="inline-flex items-center rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-[0.22em] text-white shadow-sm"
-                            style="background:${mainColor}"
-                          >
-                            ${escapeHtml(capitalize(types[0] ?? 'Unknown'))}
-                          </span>
-                        </div>
-
-                        <p class="mt-2 text-sm text-slate-600">${escapeHtml(genus)}</p>
-                        <div class="mt-3 flex flex-wrap gap-2">${renderTypePills(types)}</div>
+                  <div class="flex min-w-0 flex-col gap-3">
+                    <div class="border-2 border-[var(--border)] bg-[var(--card)] px-3 py-3">
+                      <p class="text-[11px] font-black uppercase tracking-[0.22em] text-slate-600">Type Profile</p>
+                      <div class="mt-2 flex flex-wrap gap-2">${renderTypePills(types)}</div>
+                      <div class="mt-3 pt-3">
+                        <p class="text-[11px] font-black uppercase tracking-[0.22em] text-slate-600">Pokedex Summary</p>
+                        <p class="mt-2 text-[14px] leading-6 text-slate-700">
+                          ${escapeHtml(flavor)}
+                        </p>
                       </div>
+                    </div>
 
-                      <div class="rounded-[22px] border border-amber-900/10 bg-[#fff8eb] px-4 py-3 text-sm leading-6 text-slate-600">
-                        ${escapeHtml(flavor)}
-                      </div>
+                    <div class="grid grid-cols-3 gap-2">
+                      ${renderFactCard("Height", formatHeight(pokemon.height), mainColor)}
+                      ${renderFactCard("Weight", formatWeight(pokemon.weight), mainColor)}
+                      ${renderFactCard("Stat Total", String(statTotal), mainColor)}
                     </div>
                   </div>
                 </div>
 
-                <div class="grid grid-cols-3 gap-3">
-                  ${renderFactCard('Height', formatHeight(pokemon.height), mainColor)}
-                  ${renderFactCard('Weight', formatWeight(pokemon.weight), mainColor)}
-                  ${renderFactCard('Stat Total', String(statTotal), mainColor)}
-                </div>
-
-                <div class="mt-auto rounded-[22px] border border-amber-900/10 bg-[#fff7e3] p-4 shadow-[0_10px_24px_rgba(15,23,42,0.05)]">
-                  <div class="flex items-center justify-between gap-3">
-                    <div>
-                      <p class="text-[11px] font-semibold uppercase tracking-[0.32em] text-slate-500">Notebook Progress</p>
-                      <p class="mt-1 font-book text-[28px] text-slate-900">
-                        ${totalCount ? `Page ${id} of ${totalCount}` : `Entry ${formatId(id)}`}
-                      </p>
-                    </div>
-                    ${
-                      totalCount
-                        ? `<div class="text-right">
-                            <p class="text-[11px] font-semibold uppercase tracking-[0.28em] text-slate-500">Coverage</p>
-                            <p class="text-[28px] font-black text-slate-900">${progress}%</p>
-                          </div>`
-                        : ''
-                    }
+                <div class="mt-auto border-2 border-[var(--border)] bg-[var(--card)] px-3 py-3">
+                  <div class="flex items-center justify-between gap-3 pb-2">
+                    <p class="text-[11px] font-black uppercase tracking-[0.22em] text-slate-600">Field Notes</p>
+                    <span class="inline-flex items-center border-2 border-[var(--border)] px-2.5 py-1.5 text-[10px] font-black uppercase tracking-[0.16em] text-[var(--text)]" style="background:${mainColor};color:${getTypeTextColor(types[0] ?? "")}">
+                      Pokedex Data
+                    </span>
                   </div>
-                  ${
-                    totalCount
-                      ? `<div class="mt-3 h-3 overflow-hidden rounded-full bg-slate-200">
-                          <div class="h-full rounded-full transition-[width] duration-700 ease-out" style="width:${progress}%;background:${mainColor}"></div>
-                        </div>`
-                      : ''
-                  }
+                  <div class="mt-3">${renderNotesList(notebookNotes)}</div>
                 </div>
               </div>
-              ${renderPageRings('right')}
+              ${renderPageRings("right")}
             </section>
 
-            <section data-book-page="right" class="relative h-full overflow-hidden rounded-[24px] border border-amber-950/10 bg-[#fbf5e6] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.8)] [backface-visibility:hidden] [transform-origin:left_center]">
-              <div class="pointer-events-none absolute bottom-0 left-8 top-0 w-px bg-rose-200/50"></div>
+            <section data-book-page="right" class="relative h-full overflow-hidden rounded-[10px] bg-[var(--bg)] px-6 py-6 pl-12 [backface-visibility:hidden] [transform-origin:left_center]">
+              <div class="pointer-events-none absolute inset-0 opacity-35 [background-image:radial-gradient(rgba(18,18,18,0.08)_0.8px,transparent_0.8px)] [background-size:18px_18px]"></div>
+              <button
+                type="button"
+                data-book-action="close"
+                class="absolute right-3 top-3 z-20 inline-flex h-10 w-10 items-center justify-center border-2 border-[var(--border)] bg-[var(--card)] text-[var(--text)] transition duration-150 hover:bg-[var(--yellow)] active:translate-x-[2px] active:translate-y-[2px]"
+                aria-label="Close notebook"
+              >
+                ${closeIcon()}
+              </button>
               <div class="relative flex h-full flex-col gap-3">
-                <div class="flex items-start justify-between gap-4">
-                  <div>
-                    <div class="flex items-start gap-3">
-                      <div>
-                        <p class="text-[11px] uppercase tracking-[0.32em] text-slate-500">Battle Ledger</p>
-                        <h3 class="mt-1 font-book text-[40px] text-slate-900">Combat Notes</h3>
-                      </div>
-                      <button
-                        type="button"
-                        data-book-action="close"
-                        class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-amber-900/15 bg-[#fffaf0] text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:bg-white"
-                        aria-label="Close notebook"
-                      >
-                        ${closeIcon()}
-                      </button>
-                    </div>
-                  </div>
-                  <div class="rounded-[20px] border border-white/70 bg-white/80 px-4 py-3 text-right shadow-sm">
-                    <p class="text-[11px] font-semibold uppercase tracking-[0.28em] text-slate-500">Stat Total</p>
-                    <p class="text-[34px] font-black leading-none text-slate-900">${statTotal}</p>
-                  </div>
+                <div class="pb-3 pr-14">
+                  <h3 class="text-[36px] font-black uppercase leading-none tracking-[-0.05em] text-[var(--text)]">Combat Notes</h3>
+                  <p class="mt-2 text-[14px] font-semibold uppercase tracking-[0.14em] text-slate-600">
+                    Tactical reference, pressure points, and Pokedex progress
+                  </p>
                 </div>
 
-                <div class="rounded-[22px] border border-amber-900/10 bg-white/80 p-4 shadow-[0_10px_24px_rgba(15,23,42,0.05)]">
-                  <div class="flex items-center justify-between gap-3">
-                    <p class="text-[11px] font-semibold uppercase tracking-[0.32em] text-slate-500">Base Stats</p>
-                    <p class="text-xs font-medium text-slate-500">Scaled against the 255 max benchmark</p>
+                <div class="grid grid-cols-2 gap-2">
+                  ${renderFactCard("Stat Total", String(statTotal), mainColor)}
+                  ${renderFactCard("Base EXP", String(pokemon.base_experience ?? "Unknown"), "#D02020")}
+                </div>
+
+                <div class="border-2 border-[var(--border)] bg-[var(--card)] px-3 py-3">
+                  <div class="flex items-center justify-between gap-3 pb-2">
+                    <p class="text-[11px] font-black uppercase tracking-[0.22em] text-slate-600">Base Stats</p>
+                    <p class="text-[11px] font-black uppercase tracking-[0.12em] text-slate-600">Scaled to 255</p>
                   </div>
-                  <div class="mt-3 space-y-2.5">
+                  <div class="mt-3 space-y-2">
                     ${renderStatRows(pokemon.stats)}
                   </div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
-                  <div class="rounded-[22px] border border-amber-900/10 bg-[#fff7e7] p-4 shadow-[0_10px_24px_rgba(15,23,42,0.05)]">
-                    <p class="text-[11px] font-semibold uppercase tracking-[0.32em] text-slate-500">Abilities</p>
+                  <div class="border-2 border-[var(--border)] bg-[var(--card)] px-3 py-3">
+                    <p class="text-[11px] font-black uppercase tracking-[0.22em] text-slate-600">Abilities</p>
                     <div class="mt-3">
                       ${renderAbilities(pokemon.abilities)}
                     </div>
                   </div>
 
-                  <div class="rounded-[22px] border border-amber-900/10 bg-[#fff7e7] p-4 shadow-[0_10px_24px_rgba(15,23,42,0.05)]">
-                    <p class="text-[11px] font-semibold uppercase tracking-[0.32em] text-slate-500">Weaknesses</p>
+                  <div class="border-2 border-[var(--border)] bg-[var(--card)] px-3 py-3">
+                    <p class="text-[11px] font-black uppercase tracking-[0.22em] text-slate-600">Weaknesses</p>
                     <div class="mt-3 flex flex-wrap gap-2">
                       ${renderWeaknesses(weaknesses)}
                     </div>
                   </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-3">
-                  <div class="rounded-[22px] border border-amber-900/10 bg-white/80 p-4 shadow-[0_10px_24px_rgba(15,23,42,0.05)]">
-                    <p class="text-[11px] font-semibold uppercase tracking-[0.32em] text-slate-500">Field Notes</p>
-                    <div class="mt-3">
-                      ${renderNotesList(notebookNotes)}
-                    </div>
-                  </div>
-
-                  <div class="rounded-[22px] border border-amber-900/10 bg-white/80 p-4 shadow-[0_10px_24px_rgba(15,23,42,0.05)]">
-                    <p class="text-[11px] font-semibold uppercase tracking-[0.32em] text-slate-500">Moves To Remember</p>
+                <div class="mt-auto grid grid-cols-[1.25fr_0.75fr] gap-3">
+                  <div class="border-2 border-[var(--border)] bg-[var(--card)] px-3 py-3">
+                    <p class="text-[11px] font-black uppercase tracking-[0.22em] text-slate-600">Moves To Remember</p>
                     <div class="mt-3">
                       ${renderMoves(pokemon.moves)}
                     </div>
                   </div>
-                </div>
 
-                <div class="mt-auto rounded-[24px] border border-amber-900/10 bg-[#f5e8c8]/95 px-4 py-4 shadow-[0_12px_28px_rgba(15,23,42,0.08)]">
-                  <div class="text-center">
-                      <p class="text-[11px] font-semibold uppercase tracking-[0.32em] text-slate-500">Endless Notebook</p>
-                      <p class="mt-1 text-xs text-slate-600">
-                        ${canNavigate
-                          ? `Use the side buttons to turn from ${escapeHtml(formatId(prevId))} to ${escapeHtml(formatId(nextId))}.`
-                          : 'Only one entry is loaded right now, so page turning is disabled.'}
-                      </p>
+                  <div class="border-2 border-[var(--border)] bg-[var(--yellow)] px-3 py-2.5">
+                    <p class="text-[11px] font-black uppercase tracking-[0.22em] text-slate-700">Pokedex Progress</p>
+                    <p class="mt-1.5 text-[24px] font-black leading-none text-[var(--text)]">
+                      ${totalCount ? `${progress}%` : escapeHtml(formatId(id))}
+                    </p>
+                    <p class="mt-1.5 text-[10px] font-black uppercase tracking-[0.14em] text-slate-700">
+                      ${totalCount ? `Page ${id} of ${totalCount}` : "Single entry loaded"}
+                    </p>
                   </div>
                 </div>
               </div>
-              ${renderPageRings('left')}
+              ${renderPageRings("left")}
             </section>
 
             ${renderCoverSpringConnectors()}
@@ -505,32 +508,32 @@ export function renderPokedex(
           <div data-book-covers class="pointer-events-none absolute inset-0 z-20">
             <div
               data-book-cover="left"
-              class="absolute left-0 top-0 h-full w-1/2 overflow-hidden rounded-l-[30px]"
+              class="absolute left-0 top-0 h-full w-1/2 overflow-hidden rounded-l-[18px]"
               style="transform-origin:right center;transform-style:preserve-3d;transform:rotateY(0deg);z-index:30;"
             >
               <div
-                class="relative h-full rounded-l-[30px]"
+                class="relative h-full rounded-l-[18px]"
                 style="background:${BOOK_COVER_COLOR};backface-visibility:hidden;"
               >
               </div>
               <div
-                class="absolute inset-0 rounded-r-[30px] bg-white"
+                class="absolute inset-0 rounded-r-[18px] bg-white"
                 style="transform:rotateY(180deg);backface-visibility:hidden;"
               ></div>
             </div>
 
             <div
               data-book-cover="right"
-              class="absolute right-0 top-0 h-full w-1/2 overflow-hidden rounded-r-[30px]"
+              class="absolute right-0 top-0 h-full w-1/2 overflow-hidden rounded-r-[18px]"
               style="transform-origin:left center;transform-style:preserve-3d;transform:rotateY(0deg);z-index:30;"
             >
               <div
-                class="relative h-full rounded-r-[30px]"
+                class="relative h-full rounded-r-[18px]"
                 style="background:${BOOK_COVER_COLOR};backface-visibility:hidden;"
               >
               </div>
               <div
-                class="absolute inset-0 rounded-l-[30px] bg-white"
+                class="absolute inset-0 rounded-l-[18px] bg-white"
                 style="transform:rotateY(180deg);backface-visibility:hidden;"
               ></div>
             </div>
@@ -542,11 +545,11 @@ export function renderPokedex(
         type="button"
         data-book-action="next"
         data-book-nav="true"
-        ${canNavigate ? '' : 'disabled'}
-        class="ml-3 inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full border-2 border-[var(--border)] bg-white text-slate-900 shadow-[3px_3px_0px_0px_#2d2d2d] transition duration-150 hover:shadow-[4px_4px_0px_0px_#2d2d2d] disabled:cursor-not-allowed disabled:opacity-30"
+        ${canNavigate ? "" : "disabled"}
+        class="ml-3 inline-flex h-12 w-12 shrink-0 items-center justify-center border-2 border-[var(--border)] bg-[var(--card)] text-[var(--text)] transition duration-150 hover:bg-[var(--yellow)] active:translate-x-[2px] active:translate-y-[2px] disabled:cursor-not-allowed disabled:opacity-30"
         aria-label="Next Pokemon"
       >
-        ${chevronIcon('right')}
+        ${chevronIcon("right")}
       </button>
     </div>`;
 }
@@ -556,64 +559,64 @@ function setCoverState(root, state) {
   const rightCover = root.querySelector('[data-book-cover="right"]');
   if (!leftCover || !rightCover) return;
 
-  if (state === 'open') {
-    leftCover.style.transform = 'rotateY(-180deg)';
-    rightCover.style.transform = 'rotateY(180deg)';
-    leftCover.style.zIndex = '10';
-    rightCover.style.zIndex = '10';
+  if (state === "open") {
+    leftCover.style.transform = "rotateY(-180deg)";
+    rightCover.style.transform = "rotateY(180deg)";
+    leftCover.style.zIndex = "10";
+    rightCover.style.zIndex = "10";
     return;
   }
 
-  leftCover.style.transform = 'rotateY(0deg)';
-  rightCover.style.transform = 'rotateY(0deg)';
-  leftCover.style.zIndex = '30';
-  rightCover.style.zIndex = '30';
+  leftCover.style.transform = "rotateY(0deg)";
+  rightCover.style.transform = "rotateY(0deg)";
+  leftCover.style.zIndex = "30";
+  rightCover.style.zIndex = "30";
 }
 
 function setCoverVisibility(root, visible) {
-  const covers = root.querySelector('[data-book-covers]');
+  const covers = root.querySelector("[data-book-covers]");
   if (!covers) return;
 
-  covers.style.opacity = visible ? '1' : '0';
-  covers.style.visibility = visible ? 'visible' : 'hidden';
+  covers.style.opacity = visible ? "1" : "0";
+  covers.style.visibility = visible ? "visible" : "hidden";
 }
 
 function openBookImmediate(root) {
-  root.dataset.bookOpening = 'false';
-  root.dataset.bookSessionOpen = 'true';
-  setCoverState(root, 'open');
+  root.dataset.bookOpening = "false";
+  root.dataset.bookSessionOpen = "true";
+  setCoverState(root, "open");
   setCoverVisibility(root, false);
 }
 
 function pulseSpineRings(root, action) {
   const group = root.querySelector(
-    `[data-ring-group="${action === 'next' ? 'right' : 'left'}"]`
+    `[data-ring-group="${action === "next" ? "right" : "left"}"]`,
   );
   if (!group) return;
 
-  group.querySelectorAll('[data-ring]').forEach((ring, index) => {
+  group.querySelectorAll("[data-ring]").forEach((ring, index) => {
     if (index === 0) return;
     ring.animate(
       [
-        { transform: 'scale(1)' },
-        { transform: 'scale(1.08)' },
-        { transform: 'scale(1)' },
+        { transform: "scale(1)" },
+        { transform: "scale(1.08)" },
+        { transform: "scale(1)" },
       ],
       {
         duration: 500,
-        easing: 'ease-out',
-      }
+        easing: "ease-out",
+      },
     );
   });
 }
 
 function buildFlipOverlay(root, action) {
-  const spread = root.querySelector('[data-book-spread]');
+  const spread = root.querySelector("[data-book-spread]");
   const sourcePage = root.querySelector(
-    `[data-book-page="${action === 'next' ? 'right' : 'left'}"]`
+    `[data-book-page="${action === "next" ? "right" : "left"}"]`,
   );
   const backPage = root.querySelector(
-    `[data-book-page="${action === 'next' ? 'left' : 'right'}"]`
+    `[data-book-page="${action === "next" ? "left" : "right"}"]`,
   );
 
   if (!spread || !sourcePage || !backPage) return null;
@@ -621,55 +624,56 @@ function buildFlipOverlay(root, action) {
     root,
     action,
     sourcePage.cloneNode(true),
-    backPage.cloneNode(true)
+    backPage.cloneNode(true),
   );
 }
 
 function buildFlipOverlayFromPages(root, action, frontPage, backPage) {
-  const spread = root.querySelector('[data-book-spread]');
+  const spread = root.querySelector("[data-book-spread]");
   if (!spread || !frontPage || !backPage) return null;
+  const pageWidth = getRenderedPageWidth(spread);
 
-  const overlay = document.createElement('div');
-  overlay.setAttribute('data-book-flip-overlay', action);
-  overlay.className = 'absolute top-0';
-  overlay.style.width = `${PAGE_WIDTH}px`;
-  overlay.style.height = '100%';
-  overlay.style.transformStyle = 'preserve-3d';
-  overlay.style.willChange = 'transform';
-  overlay.style.zIndex = '20';
+  const overlay = document.createElement("div");
+  overlay.setAttribute("data-book-flip-overlay", action);
+  overlay.className = "absolute top-0";
+  overlay.style.width = `${pageWidth}px`;
+  overlay.style.height = "100%";
+  overlay.style.transformStyle = "preserve-3d";
+  overlay.style.willChange = "transform";
+  overlay.style.zIndex = "20";
 
-  const flipper = document.createElement('div');
-  flipper.setAttribute('data-book-flip-surface', '');
-  flipper.style.position = 'absolute';
-  flipper.style.inset = '0';
-  flipper.style.transformStyle = 'preserve-3d';
-  flipper.style.willChange = 'transform';
+  const flipper = document.createElement("div");
+  flipper.setAttribute("data-book-flip-surface", "");
+  flipper.style.position = "absolute";
+  flipper.style.inset = "0";
+  flipper.style.transformStyle = "preserve-3d";
+  flipper.style.willChange = "transform";
 
-  if (action === 'next') {
-    overlay.style.right = '0px';
-    flipper.style.transformOrigin = '0px 50%';
+  if (action === "next") {
+    overlay.style.right = "0px";
+    flipper.style.transformOrigin = "0px 50%";
   } else {
-    overlay.style.left = '0px';
-    flipper.style.transformOrigin = `${PAGE_WIDTH}px 50%`;
+    overlay.style.left = "0px";
+    flipper.style.transformOrigin = `${pageWidth}px 50%`;
   }
 
   const frontFace = frontPage;
   const backFace = backPage;
 
-  frontFace.style.position = 'absolute';
-  frontFace.style.inset = '0';
-  frontFace.style.width = '100%';
-  frontFace.style.height = '100%';
-  frontFace.style.backfaceVisibility = 'hidden';
-  frontFace.style.transformOrigin = '50% 50%';
+  frontFace.style.position = "absolute";
+  frontFace.style.inset = "0";
+  frontFace.style.width = "100%";
+  frontFace.style.height = "100%";
+  frontFace.style.backfaceVisibility = "hidden";
+  frontFace.style.transformOrigin = "50% 50%";
 
-  backFace.style.position = 'absolute';
-  backFace.style.inset = '0';
-  backFace.style.width = '100%';
-  backFace.style.height = '100%';
-  backFace.style.backfaceVisibility = 'hidden';
-  backFace.style.transformOrigin = '50% 50%';
-  backFace.style.transform = 'rotateY(180deg)';
+  backFace.style.position = "absolute";
+  backFace.style.inset = "0";
+  backFace.style.width = "100%";
+  backFace.style.height = "100%";
+  backFace.style.backfaceVisibility = "hidden";
+  backFace.style.transformOrigin = "50% 50%";
+  backFace.style.transform = "rotateY(180deg)";
 
   flipper.append(frontFace, backFace);
   overlay.appendChild(flipper);
@@ -685,32 +689,48 @@ function replaceNotebookPage(bookRoot, side, replacementPage) {
   return bookRoot.querySelector(`[data-book-page="${side}"]`);
 }
 
+function getRenderedPageWidth(spread) {
+  if (!spread) return PAGE_WIDTH;
+  const width = (spread.clientWidth - PAGE_GAP) / 2;
+  return Number.isFinite(width) && width > 0 ? width : PAGE_WIDTH;
+}
+
+function getPageTurnShift(action) {
+  return action === "next" ? -PAGE_TURN_SHIFT : PAGE_TURN_SHIFT;
+}
+
 function fitNotebook(root) {
-  const stage = root.querySelector('[data-book-stage]');
-  const shell = root.querySelector('[data-book-shell]');
+  const stage = root.querySelector("[data-book-stage]");
+  const shell = root.querySelector("[data-book-shell]");
   if (!stage || !shell) return;
 
-  const navWidth = Array.from(root.querySelectorAll('[data-book-nav="true"]'))
-    .reduce((total, button) => total + button.offsetWidth, 0);
-  const sideGap = root.querySelectorAll('[data-book-nav="true"]').length ? 32 : 0;
+  const navWidth = Array.from(
+    root.querySelectorAll('[data-book-nav="true"]'),
+  ).reduce((total, button) => total + button.offsetWidth, 0);
+  const sideGap = root.querySelectorAll('[data-book-nav="true"]').length
+    ? 32
+    : 0;
   const availableWidth = Math.max(
     120,
-    stage.clientWidth - navWidth - sideGap - 4 - PAGE_FLIP_BLEED * 2
+    stage.clientWidth - navWidth - sideGap - 4 - PAGE_FLIP_BLEED * 2,
   );
-  const availableHeight = Math.max(120, stage.clientHeight - 4 - PAGE_FLIP_BLEED * 2);
+  const availableHeight = Math.max(
+    120,
+    stage.clientHeight - 4 - PAGE_FLIP_BLEED * 2,
+  );
   const widthScale = Math.max(0.1, availableWidth / BOOK_WIDTH);
   const heightScale = Math.max(0.1, availableHeight / BOOK_HEIGHT);
   shell.style.transform = `scale(${Math.min(widthScale, heightScale, 1)})`;
 }
 
 function revealNotebook(root) {
-  const shell = root.querySelector('[data-book-shell]');
+  const shell = root.querySelector("[data-book-shell]");
   if (!shell) return;
-  shell.style.opacity = '1';
+  shell.style.opacity = "1";
 }
 
 function scheduleNotebookFit(root) {
-  const image = root.querySelector('[data-book-image]');
+  const image = root.querySelector("[data-book-image]");
   const runFit = () => fitNotebook(root);
   const settleFit = () => {
     runFit();
@@ -735,91 +755,89 @@ function scheduleNotebookFit(root) {
   });
 
   if (image && !image.complete) {
-    image.addEventListener('load', runFit, { once: true });
+    image.addEventListener("load", runFit, { once: true });
   }
 }
 
 function getPageTurnRotationKeyframes(action) {
-  return action === 'next'
-    ? [
-        { transform: 'rotateY(0deg)' },
-        { transform: 'rotateY(-180deg)' },
-      ]
-    : [
-        { transform: 'rotateY(0deg)' },
-        { transform: 'rotateY(180deg)' },
-      ];
+  return action === "next"
+    ? [{ transform: "rotateY(0deg)" }, { transform: "rotateY(-180deg)" }]
+    : [{ transform: "rotateY(0deg)" }, { transform: "rotateY(180deg)" }];
 }
 
 function getPageTurnShiftKeyframes(action) {
-  const shift = action === 'next' ? -PAGE_GAP : PAGE_GAP;
+  const shift = getPageTurnShift(action);
 
   return [
-    { transform: 'translateX(0px)', offset: 0 },
+    { transform: "translateX(0px)", offset: 0 },
     { transform: `translateX(${shift}px)`, offset: 0.5 },
     { transform: `translateX(${shift}px)`, offset: 1 },
   ];
 }
 
 function getCombinedPageTurnKeyframes(action) {
-  const shift = action === 'next' ? -PAGE_GAP : PAGE_GAP;
+  const shift = getPageTurnShift(action);
 
-  return action === 'next'
+  return action === "next"
     ? [
-        { transform: 'translateX(0px) rotateY(0deg)', offset: 0 },
+        { transform: "translateX(0px) rotateY(0deg)", offset: 0 },
         { transform: `translateX(${shift}px) rotateY(-90deg)`, offset: 0.5 },
         { transform: `translateX(${shift}px) rotateY(-180deg)`, offset: 1 },
       ]
     : [
-        { transform: 'translateX(0px) rotateY(0deg)', offset: 0 },
+        { transform: "translateX(0px) rotateY(0deg)", offset: 0 },
         { transform: `translateX(${shift}px) rotateY(90deg)`, offset: 0.5 },
         { transform: `translateX(${shift}px) rotateY(180deg)`, offset: 1 },
       ];
 }
 
-function animateTurningPage(action, rotationTarget, shiftTarget = rotationTarget) {
+function animateTurningPage(
+  action,
+  rotationTarget,
+  shiftTarget = rotationTarget,
+) {
   if (!rotationTarget) return;
 
   if (rotationTarget === shiftTarget) {
     rotationTarget.animate(getCombinedPageTurnKeyframes(action), {
       duration: PAGE_FLIP_DURATION,
-      easing: 'cubic-bezier(0.4, 0, 1, 1)',
-      fill: 'forwards',
+      easing: "cubic-bezier(0.4, 0, 1, 1)",
+      fill: "forwards",
     });
     return;
   }
 
   rotationTarget.animate(getPageTurnRotationKeyframes(action), {
     duration: PAGE_FLIP_DURATION,
-    easing: 'cubic-bezier(0.4, 0, 1, 1)',
-    fill: 'forwards',
+    easing: "cubic-bezier(0.4, 0, 1, 1)",
+    fill: "forwards",
   });
 
   shiftTarget?.animate(getPageTurnShiftKeyframes(action), {
     duration: PAGE_FLIP_DURATION,
-    easing: 'ease-in-out',
-    fill: 'forwards',
+    easing: "ease-in-out",
+    fill: "forwards",
   });
 }
 
 function animatePageTurn(root, action, onComplete) {
   const target =
-    action === 'next'
+    action === "next"
       ? root.querySelector('[data-book-page="right"]')
       : root.querySelector('[data-book-page="left"]');
 
-  if (!target || typeof onComplete !== 'function') {
-    if (typeof onComplete === 'function') onComplete();
+  if (!target || typeof onComplete !== "function") {
+    if (typeof onComplete === "function") onComplete();
     return;
   }
 
   const overlay = buildFlipOverlay(root, action);
-  const flipSurface = overlay?.querySelector('[data-book-flip-surface]');
-  root.dataset.turning = 'true';
+  const flipSurface = overlay?.querySelector("[data-book-flip-surface]");
+  root.dataset.turning = "true";
   pulseSpineRings(root, action);
 
   if (overlay && flipSurface) {
-    target.style.visibility = 'hidden';
+    target.style.visibility = "hidden";
     animateTurningPage(action, flipSurface, overlay);
   } else {
     animateTurningPage(action, target);
@@ -827,8 +845,8 @@ function animatePageTurn(root, action, onComplete) {
 
   window.setTimeout(() => {
     if (overlay?.isConnected) overlay.remove();
-    root.dataset.turning = 'false';
-    target.style.visibility = '';
+    root.dataset.turning = "false";
+    target.style.visibility = "";
     onComplete();
   }, PAGE_FLIP_CLEANUP_DELAY);
 }
@@ -836,7 +854,7 @@ function animatePageTurn(root, action, onComplete) {
 function isNotebookTurnPayload(value) {
   return !!(
     value &&
-    typeof value === 'object' &&
+    typeof value === "object" &&
     value.detail &&
     value.detail.pokemon &&
     value.handlers
@@ -844,60 +862,69 @@ function isNotebookTurnPayload(value) {
 }
 
 function transitionNotebookTurn(root, action, payload) {
-  const sourceSide = action === 'next' ? 'right' : 'left';
-  const heldSide = action === 'next' ? 'left' : 'right';
-  const currentBookRoot = root.querySelector('[data-book-root]');
-  const sourcePage = currentBookRoot?.querySelector(
-    `[data-book-page="${sourceSide}"]`
-  )?.cloneNode(true);
-  const heldPage = currentBookRoot?.querySelector(
-    `[data-book-page="${heldSide}"]`
-  )?.cloneNode(true);
+  const sourceSide = action === "next" ? "right" : "left";
+  const heldSide = action === "next" ? "left" : "right";
+  const currentBookRoot = root.querySelector("[data-book-root]");
+  const sourcePage = currentBookRoot
+    ?.querySelector(`[data-book-page="${sourceSide}"]`)
+    ?.cloneNode(true);
+  const heldPage = currentBookRoot
+    ?.querySelector(`[data-book-page="${heldSide}"]`)
+    ?.cloneNode(true);
 
   if (!sourcePage || !heldPage) {
-    root.dataset.detailLoading = 'false';
+    root.dataset.detailLoading = "false";
     root.innerHTML = renderPokedex(payload.detail);
-    root.dataset.bookSessionOpen = 'true';
+    root.dataset.bookSessionOpen = "true";
     hydratePokedex(root, payload.handlers);
     return;
   }
 
-  const temp = document.createElement('div');
+  const temp = document.createElement("div");
   temp.innerHTML = renderPokedex(payload.detail);
-  const nextStage = temp.querySelector('[data-book-stage]');
-  const nextBookRoot = nextStage?.querySelector('[data-book-root]');
-  const backPage = nextBookRoot?.querySelector(
-    `[data-book-page="${heldSide}"]`
-  )?.cloneNode(true);
-  const finalHeldPage = nextBookRoot?.querySelector(
-    `[data-book-page="${heldSide}"]`
-  )?.cloneNode(true);
+  const nextStage = temp.querySelector("[data-book-stage]");
+  const nextBookRoot = nextStage?.querySelector("[data-book-root]");
+  const backPage = nextBookRoot
+    ?.querySelector(`[data-book-page="${heldSide}"]`)
+    ?.cloneNode(true);
+  const finalHeldPage = nextBookRoot
+    ?.querySelector(`[data-book-page="${heldSide}"]`)
+    ?.cloneNode(true);
 
   if (!nextStage || !backPage || !finalHeldPage) {
-    root.dataset.detailLoading = 'false';
+    root.dataset.detailLoading = "false";
     root.innerHTML = renderPokedex(payload.detail);
-    root.dataset.bookSessionOpen = 'true';
+    root.dataset.bookSessionOpen = "true";
     hydratePokedex(root, payload.handlers);
     return;
   }
 
-  root.dataset.bookSessionOpen = 'true';
+  root.dataset.bookSessionOpen = "true";
   root.innerHTML = nextStage.outerHTML;
   hydratePokedex(root, payload.handlers);
 
-  const activeBookRoot = root.querySelector('[data-book-root]');
-  const activeHeldPage = replaceNotebookPage(activeBookRoot, heldSide, heldPage);
-  const overlay = buildFlipOverlayFromPages(activeBookRoot, action, sourcePage, backPage);
-  const flipSurface = overlay?.querySelector('[data-book-flip-surface]');
+  const activeBookRoot = root.querySelector("[data-book-root]");
+  const activeHeldPage = replaceNotebookPage(
+    activeBookRoot,
+    heldSide,
+    heldPage,
+  );
+  const overlay = buildFlipOverlayFromPages(
+    activeBookRoot,
+    action,
+    sourcePage,
+    backPage,
+  );
+  const flipSurface = overlay?.querySelector("[data-book-flip-surface]");
 
   if (!activeBookRoot || !activeHeldPage || !overlay || !flipSurface) {
-    root.dataset.detailLoading = 'false';
-    root.dataset.turning = 'false';
+    root.dataset.detailLoading = "false";
+    root.dataset.turning = "false";
     return;
   }
 
-  root.dataset.detailLoading = 'false';
-  root.dataset.turning = 'true';
+  root.dataset.detailLoading = "false";
+  root.dataset.turning = "true";
   pulseSpineRings(activeBookRoot, action);
 
   animateTurningPage(action, flipSurface, overlay);
@@ -905,33 +932,42 @@ function transitionNotebookTurn(root, action, payload) {
   window.setTimeout(() => {
     if (overlay.isConnected) overlay.remove();
     replaceNotebookPage(activeBookRoot, heldSide, finalHeldPage);
-    root.dataset.turning = 'false';
+    root.dataset.turning = "false";
   }, PAGE_FLIP_CLEANUP_DELAY);
 }
 
 function animateNavButton(button) {
   button.animate(
     [
-      { transform: 'translate(0px, 0px) scale(1)', boxShadow: '3px 3px 0px 0px #2d2d2d' },
-      { transform: 'translate(1px, 1px) scale(0.96)', boxShadow: '2px 2px 0px 0px #2d2d2d' },
-      { transform: 'translate(0px, 0px) scale(1)', boxShadow: '3px 3px 0px 0px #2d2d2d' },
+      {
+        transform: "translate(0px, 0px) scale(1)",
+        boxShadow: "3px 3px 0px 0px #2d2d2d",
+      },
+      {
+        transform: "translate(1px, 1px) scale(0.96)",
+        boxShadow: "2px 2px 0px 0px #2d2d2d",
+      },
+      {
+        transform: "translate(0px, 0px) scale(1)",
+        boxShadow: "3px 3px 0px 0px #2d2d2d",
+      },
     ],
     {
       duration: 180,
-      easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
-    }
+      easing: "cubic-bezier(0.22, 1, 0.36, 1)",
+    },
   );
 }
 
 export function hydratePokedex(root, handlers = {}) {
-  root.dataset.turning = 'false';
-  root.dataset.detailLoading = 'false';
-  root.dataset.bookClosing = 'false';
-  root.dataset.bookOpening = 'false';
+  root.dataset.turning = "false";
+  root.dataset.detailLoading = "false";
+  root.dataset.bookClosing = "false";
+  root.dataset.bookOpening = "false";
 
   if (!resizeBound) {
-    window.addEventListener('resize', () => {
-      if (typeof activeFit === 'function') activeFit();
+    window.addEventListener("resize", () => {
+      if (typeof activeFit === "function") activeFit();
     });
     resizeBound = true;
   }
@@ -939,61 +975,65 @@ export function hydratePokedex(root, handlers = {}) {
   activeFit = () => fitNotebook(root);
   scheduleNotebookFit(root);
 
-  if (root.dataset.bookSessionOpen === 'true') {
-    setCoverState(root, 'open');
+  if (root.dataset.bookSessionOpen === "true") {
+    setCoverState(root, "open");
     setCoverVisibility(root, false);
   } else {
     openBookImmediate(root);
   }
 
-  root.__pokemonNotebookClose = onComplete => {
-    root.dataset.bookClosing = 'false';
-    root.dataset.bookSessionOpen = 'false';
+  root.__pokemonNotebookClose = (onComplete) => {
+    root.dataset.bookClosing = "false";
+    root.dataset.bookSessionOpen = "false";
     setCoverVisibility(root, false);
-    if (typeof onComplete === 'function') onComplete();
+    if (typeof onComplete === "function") onComplete();
   };
 
-  root.__pokedexClose = onComplete => {
-    root.dataset.bookClosing = 'false';
-    root.dataset.bookSessionOpen = 'false';
+  root.__pokedexClose = (onComplete) => {
+    root.dataset.bookClosing = "false";
+    root.dataset.bookSessionOpen = "false";
     setCoverVisibility(root, false);
-    if (typeof onComplete === 'function') onComplete();
+    if (typeof onComplete === "function") onComplete();
   };
 
-  root.querySelectorAll('[data-book-action]').forEach(button => {
-    button.addEventListener('click', () => {
+  root.querySelectorAll("[data-book-action]").forEach((button) => {
+    button.addEventListener("click", () => {
       const action = button.dataset.bookAction;
       const handler = handlers[action];
-      if (typeof handler !== 'function') return;
+      if (typeof handler !== "function") return;
       if (button.disabled) return;
 
-      if (action === 'previous' || action === 'next') {
-        if (root.dataset.turning === 'true' || root.dataset.detailLoading === 'true') return;
+      if (action === "previous" || action === "next") {
+        if (
+          root.dataset.turning === "true" ||
+          root.dataset.detailLoading === "true"
+        )
+          return;
         animateNavButton(button);
-        const direction = action === 'previous' ? 'previous' : 'next';
+        const direction = action === "previous" ? "previous" : "next";
         const result = handler();
 
-        if (result && typeof result.then === 'function') {
-          root.dataset.detailLoading = 'true';
+        if (result && typeof result.then === "function") {
+          root.dataset.detailLoading = "true";
           result
-            .then(payload => {
+            .then((payload) => {
               if (!isNotebookTurnPayload(payload)) {
-                root.dataset.detailLoading = 'false';
+                root.dataset.detailLoading = "false";
                 return;
               }
 
               transitionNotebookTurn(root, direction, payload);
             })
-            .catch(error => {
+            .catch((error) => {
               console.error(error);
-              root.dataset.detailLoading = 'false';
-              root.dataset.turning = 'false';
+              root.dataset.detailLoading = "false";
+              root.dataset.turning = "false";
             });
           return;
         }
 
         if (isNotebookTurnPayload(result)) {
-          root.dataset.detailLoading = 'true';
+          root.dataset.detailLoading = "true";
           transitionNotebookTurn(root, direction, result);
           return;
         }
@@ -1002,28 +1042,28 @@ export function hydratePokedex(root, handlers = {}) {
         return;
       }
 
-      if (action === 'close') {
-        if (root.dataset.bookClosing === 'true') return;
+      if (action === "close") {
+        if (root.dataset.bookClosing === "true") return;
       }
 
       handler();
     });
   });
 
-  const image = root.querySelector('[data-book-image]');
+  const image = root.querySelector("[data-book-image]");
   if (image) {
     image.addEventListener(
-      'error',
+      "error",
       () => {
         image.src = FALLBACK_IMAGE;
       },
-      { once: true }
+      { once: true },
     );
   }
 
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
-      root.querySelectorAll('[data-stat-pct]').forEach(fill => {
+      root.querySelectorAll("[data-stat-pct]").forEach((fill) => {
         fill.style.width = `${fill.dataset.statPct}%`;
       });
     });

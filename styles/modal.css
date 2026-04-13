@@ -18,8 +18,8 @@
 /* ── Dialog window ── */
 .modal {
   width: 100%;
-  max-width: min(1180px, calc(100vw - 24px));
-  max-height: 92vh;
+  max-width: min(1380px, calc(100vw - 16px));
+  max-height: 96vh;
   overflow: visible;
   overscroll-behavior: contain;
   background: transparent;
