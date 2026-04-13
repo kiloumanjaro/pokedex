@@ -58,6 +58,23 @@
   cursor: pointer;
   transition: transform .15s ease-out, background .1s, border-color .15s ease-out;
 }
+.type-filter {
+  padding: 10px 14px;
+  border: 2px solid var(--border);
+  border-radius: 0;
+  background: var(--card);
+  font: 700 .85rem 'Outfit', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--fg);
+  cursor: pointer;
+  transition: border-color .15s ease-out, background .1s;
+}
+.type-filter:hover { background: var(--yellow); }
+.type-filter:focus {
+  outline: none;
+  border-color: var(--fg);
+}
 .sort-btn:hover:not(.active) { background: var(--yellow); }
 .sort-btn.active {
   background: var(--fg);

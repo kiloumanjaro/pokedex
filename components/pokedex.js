@@ -153,7 +153,7 @@ function renderTypePills(types) {
 
 function renderFactCard(label, value, accent) {
   return `
-    <div class="border-2 border-[var(--border)] bg-[var(--card)] px-3 py-2">
+    <div class="flex h-full flex-col justify-between border-2 border-[var(--border)] bg-[var(--card)] px-3 py-2">
       <p class="text-[10px] font-black uppercase tracking-[0.22em] text-slate-600">
         ${escapeHtml(label)}
       </p>
@@ -273,11 +273,11 @@ function renderMoves(moves = []) {
 
 function renderNotesList(notes) {
   return `
-    <div class="grid grid-cols-3 gap-2">
+    <div class="grid h-full auto-rows-fr grid-cols-3 gap-2">
       ${notes
         .map(
           (note) => `
-            <div class="border-2 border-[var(--border)] bg-[var(--card)] px-2.5 py-2">
+            <div class="flex h-full flex-col border-2 border-[var(--border)] bg-[var(--card)] px-2.5 py-2">
               <span class="text-[10px] font-black uppercase tracking-[0.16em] text-slate-600">
                 ${escapeHtml(note.label)}
               </span>
@@ -362,8 +362,8 @@ export function renderPokedex(
           <div data-book-spread class="relative grid h-full grid-cols-2 overflow-visible [perspective:1800px]" style="gap:${PAGE_GAP}px">
             <section data-book-page="left" class="relative h-full overflow-hidden rounded-[10px] bg-[var(--bg)] px-6 py-6 pr-12 [backface-visibility:hidden] [transform-origin:right_center]">
               <div class="pointer-events-none absolute inset-0 opacity-35 [background-image:radial-gradient(rgba(18,18,18,0.08)_0.8px,transparent_0.8px)] [background-size:18px_18px]"></div>
-              <div class="relative flex h-full flex-col gap-3">
-                <div class="flex items-start justify-between gap-3 pb-3">
+              <div class="relative grid h-full grid-rows-[auto_minmax(0,1fr)] gap-4">
+                <div class="flex items-start justify-between gap-3">
                   <div class="min-w-0">
                     <h2 class="text-[38px] font-black uppercase leading-none tracking-[-0.05em] text-[var(--text)]">
                       ${escapeHtml(capitalize(pokemon.name))}
@@ -376,56 +376,58 @@ export function renderPokedex(
                   </div>
                 </div>
 
-                <div class="grid grid-cols-[198px_minmax(0,1fr)] gap-3">
-                  <div class="border-2 border-[var(--border)] bg-[var(--card)]">
-                    <div class="flex items-center justify-between border-b-2 border-[var(--border)] px-3 py-2">
-                      <p class="text-[11px] font-black uppercase tracking-[0.18em] text-slate-600">Specimen</p>
-                      <p class="text-[11px] font-black uppercase tracking-[0.16em]" style="color:${mainColor}">
-                        ${types.length} Type${types.length > 1 ? "s" : ""}
-                      </p>
-                    </div>
-                    <div
-                      class="relative flex h-[222px] items-center justify-center overflow-hidden p-4"
-                      style="background:linear-gradient(180deg,${mainColor}2E 0%, rgba(253,251,247,0) 100%), var(--bg)"
-                    >
-                      <div class="absolute inset-0 opacity-35 [background-image:radial-gradient(rgba(18,18,18,0.08)_0.8px,transparent_0.8px)] [background-size:18px_18px]"></div>
-                      <img
-                        data-book-image
-                        src="${imageUrl(id)}"
-                        alt="${escapeHtml(pokemon.name)}"
-                        class="relative z-10 h-40 w-40 object-contain"
-                      />
-                    </div>
-                  </div>
-
-                  <div class="flex min-w-0 flex-col gap-3">
-                    <div class="border-2 border-[var(--border)] bg-[var(--card)] px-3 py-3">
-                      <p class="text-[11px] font-black uppercase tracking-[0.22em] text-slate-600">Type Profile</p>
-                      <div class="mt-2 flex flex-wrap gap-2">${renderTypePills(types)}</div>
-                      <div class="mt-3 pt-3">
-                        <p class="text-[11px] font-black uppercase tracking-[0.22em] text-slate-600">Pokedex Summary</p>
-                        <p class="mt-2 text-[14px] leading-6 text-slate-700">
-                          ${escapeHtml(flavor)}
-                        </p>
+                <div class="grid min-h-0 grid-rows-[auto_auto_minmax(0,1fr)] gap-3">
+                  <div class="grid min-h-0 grid-cols-[208px_minmax(0,1fr)] gap-3">
+                      <div class="border-2 border-[var(--border)] bg-[var(--card)]">
+                        <div class="flex items-center justify-between border-b-2 border-[var(--border)] px-3 py-2">
+                          <p class="text-[11px] font-black uppercase tracking-[0.18em] text-slate-600">Specimen</p>
+                          <p class="text-[11px] font-black uppercase tracking-[0.16em]" style="color:${mainColor}">
+                            ${types.length} Type${types.length > 1 ? "s" : ""}
+                          </p>
+                        </div>
+                        <div
+                          class="relative flex h-[248px] items-center justify-center overflow-hidden p-5"
+                          style="background:linear-gradient(180deg,${mainColor}2E 0%, rgba(253,251,247,0) 100%), var(--bg)"
+                        >
+                          <div class="absolute inset-0 opacity-35 [background-image:radial-gradient(rgba(18,18,18,0.08)_0.8px,transparent_0.8px)] [background-size:18px_18px]"></div>
+                          <img
+                            data-book-image
+                            src="${imageUrl(id)}"
+                            alt="${escapeHtml(pokemon.name)}"
+                            class="relative z-10 h-44 w-44 object-contain"
+                          />
+                        </div>
                       </div>
-                    </div>
 
-                    <div class="grid grid-cols-3 gap-2">
-                      ${renderFactCard("Height", formatHeight(pokemon.height), mainColor)}
-                      ${renderFactCard("Weight", formatWeight(pokemon.weight), mainColor)}
-                      ${renderFactCard("Stat Total", String(statTotal), mainColor)}
+                      <div class="grid min-h-0 grid-rows-[minmax(0,1fr)_auto] gap-3">
+                        <div class="border-2 border-[var(--border)] bg-[var(--card)] px-3 py-3">
+                          <p class="text-[11px] font-black uppercase tracking-[0.22em] text-slate-600">Type Profile</p>
+                          <div class="mt-2 flex flex-wrap gap-2">${renderTypePills(types)}</div>
+                          <div class="mt-4">
+                            <p class="text-[11px] font-black uppercase tracking-[0.22em] text-slate-600">Pokedex Summary</p>
+                            <p class="mt-2 text-[14px] leading-6 text-slate-700">
+                              ${escapeHtml(flavor)}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div class="grid grid-cols-3 gap-2">
+                          ${renderFactCard("Height", formatHeight(pokemon.height), mainColor)}
+                          ${renderFactCard("Weight", formatWeight(pokemon.weight), mainColor)}
+                          ${renderFactCard("Stat Total", String(statTotal), mainColor)}
+                        </div>
+                      </div>
+                  </div>
+
+                  <div class="border-2 border-[var(--border)] bg-[var(--card)] px-3 py-3">
+                    <p class="text-[11px] font-black uppercase tracking-[0.22em] text-slate-600">Pokedex Details</p>
+                    <div class="mt-3 grid grid-cols-3 gap-2">
+                      ${renderFactCard("Base EXP", String(pokemon.base_experience ?? "Unknown"), "#D02020")}
+                      ${renderFactCard("Shape", shape, mainColor)}
+                      ${renderFactCard("Habitat", habitat, mainColor)}
                     </div>
                   </div>
-                </div>
 
-                <div class="mt-auto border-2 border-[var(--border)] bg-[var(--card)] px-3 py-3">
-                  <div class="flex items-center justify-between gap-3 pb-2">
-                    <p class="text-[11px] font-black uppercase tracking-[0.22em] text-slate-600">Field Notes</p>
-                    <span class="inline-flex items-center border-2 border-[var(--border)] px-2.5 py-1.5 text-[10px] font-black uppercase tracking-[0.16em] text-[var(--text)]" style="background:${mainColor};color:${getTypeTextColor(types[0] ?? "")}">
-                      Pokedex Data
-                    </span>
-                  </div>
-                  <div class="mt-3">${renderNotesList(notebookNotes)}</div>
                 </div>
               </div>
               ${renderPageRings("right")}
@@ -441,20 +443,27 @@ export function renderPokedex(
               >
                 ${closeIcon()}
               </button>
-              <div class="relative flex h-full flex-col gap-3">
-                <div class="pb-3 pr-14">
-                  <h3 class="text-[36px] font-black uppercase leading-none tracking-[-0.05em] text-[var(--text)]">Combat Notes</h3>
-                  <p class="mt-2 text-[14px] font-semibold uppercase tracking-[0.14em] text-slate-600">
-                    Tactical reference, pressure points, and Pokedex progress
-                  </p>
+              <div class="relative grid h-full grid-rows-[auto_minmax(0,1fr)_auto] gap-3">
+                <div class="grid grid-cols-[0.9fr_1.1fr] gap-3">
+                  <div class="border-2 border-[var(--border)] bg-[var(--card)] px-3 py-2">
+                    <p class="text-[10px] font-black uppercase tracking-[0.22em] text-slate-600">Pokedex Progress</p>
+                    <p class="mt-1 text-[22px] font-black leading-none text-[var(--text)]">
+                      ${totalCount ? `${progress}%` : escapeHtml(formatId(id))}
+                    </p>
+                    <p class="mt-1 text-[10px] font-black uppercase tracking-[0.14em] text-slate-600">
+                      ${totalCount ? `Page ${id} of ${totalCount}` : "Single entry loaded"}
+                    </p>
+                  </div>
+
+                  <div class="border-2 border-[var(--border)] bg-[var(--card)] px-3 py-2">
+                    <p class="text-[10px] font-black uppercase tracking-[0.22em] text-slate-600">Abilities</p>
+                    <div class="mt-2">
+                      ${renderAbilities(pokemon.abilities)}
+                    </div>
+                  </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-2">
-                  ${renderFactCard("Stat Total", String(statTotal), mainColor)}
-                  ${renderFactCard("Base EXP", String(pokemon.base_experience ?? "Unknown"), "#D02020")}
-                </div>
-
-                <div class="border-2 border-[var(--border)] bg-[var(--card)] px-3 py-3">
+                <div class="border-2 border-[var(--border)] bg-[var(--card)] px-3 py-3 min-h-0">
                   <div class="flex items-center justify-between gap-3 pb-2">
                     <p class="text-[11px] font-black uppercase tracking-[0.22em] text-slate-600">Base Stats</p>
                     <p class="text-[11px] font-black uppercase tracking-[0.12em] text-slate-600">Scaled to 255</p>
@@ -464,38 +473,19 @@ export function renderPokedex(
                   </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-3">
-                  <div class="border-2 border-[var(--border)] bg-[var(--card)] px-3 py-3">
-                    <p class="text-[11px] font-black uppercase tracking-[0.22em] text-slate-600">Abilities</p>
-                    <div class="mt-3">
-                      ${renderAbilities(pokemon.abilities)}
-                    </div>
-                  </div>
-
-                  <div class="border-2 border-[var(--border)] bg-[var(--card)] px-3 py-3">
-                    <p class="text-[11px] font-black uppercase tracking-[0.22em] text-slate-600">Weaknesses</p>
-                    <div class="mt-3 flex flex-wrap gap-2">
-                      ${renderWeaknesses(weaknesses)}
-                    </div>
-                  </div>
-                </div>
-
-                <div class="mt-auto grid grid-cols-[1.25fr_0.75fr] gap-3">
-                  <div class="border-2 border-[var(--border)] bg-[var(--card)] px-3 py-3">
+                <div class="grid min-h-0 grid-cols-[1.15fr_0.85fr] gap-3">
+                  <div class="min-h-0 border-2 border-[var(--border)] bg-[var(--card)] px-3 py-3">
                     <p class="text-[11px] font-black uppercase tracking-[0.22em] text-slate-600">Moves To Remember</p>
                     <div class="mt-3">
                       ${renderMoves(pokemon.moves)}
                     </div>
                   </div>
 
-                  <div class="border-2 border-[var(--border)] bg-[var(--yellow)] px-3 py-2.5">
-                    <p class="text-[11px] font-black uppercase tracking-[0.22em] text-slate-700">Pokedex Progress</p>
-                    <p class="mt-1.5 text-[24px] font-black leading-none text-[var(--text)]">
-                      ${totalCount ? `${progress}%` : escapeHtml(formatId(id))}
-                    </p>
-                    <p class="mt-1.5 text-[10px] font-black uppercase tracking-[0.14em] text-slate-700">
-                      ${totalCount ? `Page ${id} of ${totalCount}` : "Single entry loaded"}
-                    </p>
+                  <div class="min-h-0 border-2 border-[var(--border)] bg-[var(--yellow)] px-3 py-3">
+                    <p class="text-[11px] font-black uppercase tracking-[0.22em] text-slate-700">Weaknesses</p>
+                    <div class="mt-3 flex flex-wrap gap-2">
+                      ${renderWeaknesses(weaknesses)}
+                    </div>
                   </div>
                 </div>
               </div>

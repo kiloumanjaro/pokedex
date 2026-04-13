@@ -1,5 +1,11 @@
 // Renders the persistent UI shell: header, main container with controls, and modal overlay
+import { TYPE_LIST } from "./constants/types.js";
+import { capitalize } from "./utils/capitalize.js";
 export function render() {
+  const typeOptions = TYPE_LIST.map(
+    (type) => `<option value="${type}">${capitalize(type)}</option>`,
+  ).join("");
+
   document.body.innerHTML = `
     <header>
       <img class="header-logo" src="./assets/pokeball.svg" alt="" aria-hidden="true" />
@@ -19,6 +25,11 @@ export function render() {
             <span class="sort-label">Sort:</span>
             <button class="sort-btn active" id="sortId">By ID</button>
             <button class="sort-btn" id="sortName">A \u2013 Z</button>
+            <span class="sort-label">Type:</span>
+            <select id="typeFilter" class="type-filter">
+              <option value="">All Types</option>
+              ${typeOptions}
+            </select>
           </div>
         </div>
 
