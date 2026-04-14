@@ -219,7 +219,13 @@ function renderGrid() {
   gridEl.innerHTML = list.map((p, i) => cardHTML(p, i)).join("");
   setupImageFallbacks(gridEl);
   list.forEach((p) => {
-    if (cache.pokemon[p.id]) injectTypes(p.id);
+    if (cache.pokemon[p.id]) {
+      injectTypes(p.id);
+      return;
+    }
+    getPokemon(p.id)
+      .then(() => injectTypes(p.id))
+      .catch(() => {});
   });
 }
 
