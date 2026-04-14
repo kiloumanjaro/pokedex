@@ -592,6 +592,9 @@
 }
 .pokedex-stat-fill {
   height: 100%;
+  width: 0;
+  background: var(--stat-color, #64748b);
+  box-shadow: 0 0 16px var(--stat-glow, transparent);
   transition: width 0.8s ease-out;
 }
 

@@ -179,7 +179,7 @@ function renderStatRows(stats = []) {
             <div
               class="pokedex-stat-fill"
               data-stat-pct="${pct}"
-              style="width:0;background:${color};box-shadow:0 0 16px ${color}66"
+              style="--stat-color:${color};--stat-glow:${color}66"
             ></div>
           </div>
         </div>`;

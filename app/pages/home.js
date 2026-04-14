@@ -1,5 +1,5 @@
 // Home page: card grid rendering, search/sort controls, pagination, and load-more logic
-import { cardHTML, injectTypes, showSkeletons } from "../../components/card.js";
+import { cardHTML, injectTypes, showSkeletons, setupImageFallbacks } from "../../components/card.js";
 import {
   getPokemon,
   fetchTotalCount,
@@ -218,6 +218,7 @@ function renderGrid() {
   }
 
   gridEl.innerHTML = list.map((p, i) => cardHTML(p, i)).join("");
+  setupImageFallbacks(gridEl);
   list.forEach((p) => {
     if (cache.pokemon[p.id]) injectTypes(p.id);
   });
@@ -227,8 +228,7 @@ function showGridError(msg) {
   gridEl.innerHTML = `
     <div class="error-state">
       <p>${escapeHtml(msg)}</p>
-      <button data-action="retry-load"
-              style="padding:10px 24px;background:var(--red);color:#fff;border:none;border-radius:8px;cursor:pointer;font:700 .9rem 'Inter',sans-serif">
+      <button class="error-state__btn" data-action="retry-load">
         Retry
       </button>
     </div>`;

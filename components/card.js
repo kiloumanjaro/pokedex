@@ -12,19 +12,18 @@ export function cardHTML({ id, name }, idx) {
   const delay = Math.min(idx * 30, 300);
   return `
     <div class="poke-card" data-id="${id}"
-         style="animation-delay:${delay}ms" tabindex="0">
+         style="--card-delay:${delay}ms" tabindex="0">
       <div class="evolution-badge" id="evo-${id}"></div>
       <div class="card-img-wrap">
         <div class="card-img-bg" id="cbg-${id}"></div>
         <img src="${imageUrl(id)}" alt="${escapeHtml(name)}" width="110" height="110"
-             loading="lazy"
-             onerror="this.onerror=null;this.src='${FALLBACK_IMAGE}'" />
+             loading="lazy" />
       </div>
       <div class="card-body">
         <div class="card-num">${formatId(id)}</div>
         <div class="card-name">${capitalize(name)}</div>
         <div class="type-pills" id="tp-${id}">
-          <span class="type-pill" style="background:#ddd;color:#999">···</span>
+          <span class="type-pill type-pill--loading">···</span>
         </div>
       </div>
     </div>`;
@@ -40,7 +39,7 @@ export function injectTypes(id) {
     `<span class="type-pill t-${t}">${capitalize(t)}</span>`
   ).join('');
   const bg = document.getElementById(`cbg-${id}`);
-  if (bg) bg.style.background = TYPE_BG[types[0]] ?? '#aaa';
+  if (bg) bg.style.setProperty('--card-bg-color', TYPE_BG[types[0]] ?? '#aaa');
   injectEvolutionStage(id);
 }
 
@@ -58,16 +57,24 @@ async function injectEvolutionStage(id) {
   badge.setAttribute('title', `Evolution stage ${stage}`);
 }
 
+export function setupImageFallbacks(container) {
+  container.querySelectorAll('.poke-card img').forEach(img => {
+    img.addEventListener('error', () => {
+      img.src = FALLBACK_IMAGE;
+    }, { once: true });
+  });
+}
+
 export function showSkeletons(container) {
   container.innerHTML = Array.from({ length: BATCH_SIZE }, () => `
     <div class="skeleton-card">
-      <div class="skel-body" style="padding:18px 14px 8px">
+      <div class="skel-body skel-body--img">
         <div class="skel skel-img"></div>
       </div>
       <div class="skel-body">
         <div class="skel skel-line--sm"></div>
         <div class="skel skel-line--md"></div>
-        <div class="skel skel-line--sm" style="width:40%"></div>
+        <div class="skel skel-line--xs"></div>
       </div>
     </div>`).join('');
 }
