@@ -3,8 +3,8 @@ import {
   renderPokedex,
   hydratePokedex,
 } from '../../components/pokedex.js';
-import { getPokemon, getSpecies, calcWeaknesses } from '../../lib/services/pokemonService.js';
-import { getTotalCount } from '../../hooks/usePagination.js';
+import { getPokemon, getSpecies, calcWeaknesses } from '../../lib/services/pokemon-service.js';
+import { getTotalCount } from '../../hooks/use-pagination.js';
 
 let activeDetailRequest = 0;
 

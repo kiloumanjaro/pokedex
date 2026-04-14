@@ -4,7 +4,7 @@ import {
   getPokemon,
   fetchTotalCount,
   fetchPokemonBatch,
-} from "../../lib/services/pokemonService.js";
+} from "../../lib/services/pokemon-service.js";
 import cache from "../../lib/services/cache.js";
 import {
   getSearchQuery,
@@ -14,9 +14,9 @@ import {
   getTypeFilter,
   setTypeFilter,
   filteredList,
-} from "../../hooks/useSearch.js";
-import * as pagination from "../../hooks/usePagination.js";
-import { escapeHtml } from "../../utils/escapeHtml.js";
+} from "../../hooks/use-search.js";
+import * as pagination from "../../hooks/use-pagination.js";
+import { escapeHtml } from "../../utils/escape-html.js";
 import { capitalize } from "../../utils/capitalize.js";
 
 let gridEl, countEl, loadMoreWrap, loadMoreBtn;

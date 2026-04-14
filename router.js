@@ -2,7 +2,7 @@
 import { initModal, open as openModal, close as closeModal, scrollToTop } from './components/modal.js';
 import { setupHome, init as initHome } from './app/pages/home.js';
 import { fetchDetailState, loadDetail } from './app/pages/detail.js';
-import { getTotalCount } from './hooks/usePagination.js';
+import { getTotalCount } from './hooks/use-pagination.js';
 
 let currentId = null;
 let contentEl = null;

@@ -103,7 +103,7 @@ Defined in `styles/base.css`:
 
 Pokemon-type coloring is a formal subsystem, implemented in both:
 
-- `constants/typeColors.js` for JavaScript-driven backgrounds.
+- `constants/type-colors.js` for JavaScript-driven backgrounds.
 - `styles/types.css` for badge utility classes such as `.t-fire` or `.t-water`.
 
 This dual implementation creates consistency between:
@@ -116,7 +116,7 @@ Special handling exists for light colors like electric, ice, and rock, where for
 
 ### Stat color system
 
-Defined in `constants/statMeta.js`:
+Defined in `constants/stat-meta.js`:
 
 - `hp`: `#FF595E`
 - `attack`: `#FF924C`
@@ -547,7 +547,7 @@ Current UI state is expressed through:
 ### Sanitization
 
 - Dynamic user-visible HTML messages should be escaped with `escapeHtml()`.
-- Remote assets should keep fallback handling similar to the image placeholder strategy in `fallbackImage.js`.
+- Remote assets should keep fallback handling similar to the image placeholder strategy in `fallback-image.js`.
 
 ## Extension Guidelines
 
@@ -583,11 +583,11 @@ These are not current system rules, but they would strengthen consistency:
 | Search, sort, count, and load more | `styles/controls.css`, `app/pages/home.js` |
 | Card gallery and feedback states | `styles/card.css`, `components/card.js` |
 | Modal overlay and shared detail scaffolding | `styles/modal.css`, `components/modal.js`, `app/pages/detail.js` |
-| Type badge color system | `styles/types.css`, `constants/typeColors.js` |
-| Stat visualization colors | `constants/statMeta.js` |
-| Pagination/search behavior | `hooks/usePagination.js`, `hooks/useSearch.js` |
-| Data formatting and safety helpers | `utils/formatId.js`, `utils/capitalize.js`, `utils/escapeHtml.js`, `utils/fallbackImage.js` |
-| Remote data and caching | `lib/api/client.js`, `lib/services/pokemonService.js`, `lib/services/cache.js` |
+| Type badge color system | `styles/types.css`, `constants/type-colors.js` |
+| Stat visualization colors | `constants/stat-meta.js` |
+| Pagination/search behavior | `hooks/use-pagination.js`, `hooks/use-search.js` |
+| Data formatting and safety helpers | `utils/format-id.js`, `utils/capitalize.js`, `utils/escape-html.js`, `utils/fallback-image.js` |
+| Remote data and caching | `lib/api/client.js`, `lib/services/pokemon-service.js`, `lib/services/cache.js` |
 
 ## Summary
 

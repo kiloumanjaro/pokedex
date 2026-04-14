@@ -1,10 +1,10 @@
 import { imageUrl } from "../config/app.config.js";
-import { STAT_COLORS, STAT_LABELS } from "../constants/statMeta.js";
-import { TYPE_BG } from "../constants/typeColors.js";
+import { STAT_COLORS, STAT_LABELS } from "../constants/stat-meta.js";
+import { TYPE_BG } from "../constants/type-colors.js";
 import { capitalize } from "../utils/capitalize.js";
-import { escapeHtml } from "../utils/escapeHtml.js";
-import { FALLBACK_IMAGE } from "../utils/fallbackImage.js";
-import { formatId } from "../utils/formatId.js";
+import { escapeHtml } from "../utils/escape-html.js";
+import { FALLBACK_IMAGE } from "../utils/fallback-image.js";
+import { formatId } from "../utils/format-id.js";
 
 const BOOK_WIDTH = 1260;
 const BOOK_HEIGHT = 820;

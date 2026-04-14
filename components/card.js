@@ -1,11 +1,11 @@
 // Renders Pokémon card HTML, injects type badges into cards, and shows skeleton placeholders
 import { imageUrl, BATCH_SIZE } from '../config/app.config.js';
-import { TYPE_BG } from '../constants/typeColors.js';
-import { getEvolutionStage } from '../lib/services/pokemonService.js';
-import { formatId } from '../utils/formatId.js';
+import { TYPE_BG } from '../constants/type-colors.js';
+import { getEvolutionStage } from '../lib/services/pokemon-service.js';
+import { formatId } from '../utils/format-id.js';
 import { capitalize } from '../utils/capitalize.js';
-import { escapeHtml } from '../utils/escapeHtml.js';
-import { FALLBACK_IMAGE } from '../utils/fallbackImage.js';
+import { escapeHtml } from '../utils/escape-html.js';
+import { FALLBACK_IMAGE } from '../utils/fallback-image.js';
 import cache from '../lib/services/cache.js';
 
 export function cardHTML({ id, name }, idx) {
