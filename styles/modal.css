@@ -65,6 +65,30 @@
   animation: spin 0.7s linear infinite;
 }
 
+.modal-loading__error {
+  color: #dc2626;
+  font-weight: 700;
+  margin-bottom: 14px;
+}
+.modal-loading__btn--retry {
+  padding: 10px 24px;
+  background: var(--red);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font: 700 .9rem 'Outfit', sans-serif;
+}
+.modal-loading__btn--dismiss {
+  padding: 8px 20px;
+  background: none;
+  color: var(--muted);
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  font: 600 .85rem 'Outfit', sans-serif;
+}
+
 /* ── Stage ── */
 .pokedex-stage {
   margin: 0 auto;

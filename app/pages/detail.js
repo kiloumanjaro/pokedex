@@ -51,16 +51,12 @@ export async function loadDetail(id, contentEl, handlers = {}) {
     contentEl.dataset.detailLoading = 'false';
     contentEl.innerHTML = `
       <div class="modal-loading">
-        <p style="color:#dc2626;font-weight:700;margin-bottom:14px">Failed to load #${id}</p>
-        <button data-action="retry" data-id="${id}"
-                style="padding:10px 24px;background:var(--red);color:#fff;border:none;border-radius:8px;
-                       cursor:pointer;font:700 .9rem 'Inter',sans-serif">
+        <p class="modal-loading__error">Failed to load #${id}</p>
+        <button class="modal-loading__btn--retry" data-action="retry" data-id="${id}">
           Retry
         </button>
         <br/><br/>
-        <button data-action="close"
-                style="padding:8px 20px;background:none;color:var(--muted);border:2px solid var(--border);
-                       border-radius:8px;cursor:pointer;font:600 .85rem 'Inter',sans-serif">
+        <button class="modal-loading__btn--dismiss" data-action="close">
           Close
         </button>
       </div>`;
