@@ -15,7 +15,7 @@ export function render() {
     <main class="container">
       <div class="home-content">
         <div class="controls">
-          <div class="search-wrap">s
+          <div class="search-wrap">
             <input class="search-input" type="search" placeholder="Search name or #ID\u2026" autocomplete="off" />
           </div>
           <div class="sort-wrap">
